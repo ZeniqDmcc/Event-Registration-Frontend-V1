@@ -1,11 +1,13 @@
 "use client"
 import Auth from "../../../components/auth/Auth"
-import { useState } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import axios from 'axios';
+import { useState } from "react";
 
 const CreateEventPage = () => {
+
+    const [success, setSuccess] = useState('')
 
     const initialValues = {
         eventId: '',
@@ -18,43 +20,44 @@ const CreateEventPage = () => {
             facebook: '',
             twitter: '',
             instagram: '',
-        }
+        },
+        logo: '',
+        banner: '',
     };
+
 
     const handleSubmit = async (values, { setSubmitting, setErrors }) => {
         try {
-            // Get the authentication token from storage
-            const token = localStorage.getItem('access_token');
-    
-            // Include the token in the request headers
-            const headers = {
-                Authorization: `Bearer ${token}`,
-                'Content-Type': 'application/json', // Add this line to set Content-Type to JSON
-            };
-    
-            // Convert the values object to a JSON string
-            const data = JSON.stringify(values);
-    
-            // Make the API call to create the event using axios
-            const response = await axios.post(
-                'http://192.168.200.42:9003/admin/event/createEvent',
-                data, // Use the JSON string here
-                { headers }
-            );
-    
-            console.log('Event created successfully!', response.data);
+            console.log(values)
+          // Get the authentication token from storage
+          const token = localStorage.getItem('access_token');
+      
+          // Include the token in the request headers
+          const headers = {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json', // Add this line to set Content-Type to JSON
+          };
+      
+          // Make the API call to create the event using axios
+          const response = await axios.post(
+            'http://192.168.200.42:9003/admin/event/createEvent',
+            values,
+            { headers }
+          );
+      
+          console.log('Event created successfully!', response.data);
+      
+          // Set the success status to true upon successful submission
         } catch (error) {
-            console.error('Error creating event:', error);
-            setErrors({ submitError: 'Failed to create event. Please try again later.' });
+          console.error('Error creating event:', error);
+          setErrors({ submitError: 'Failed to create event. Please try again later.' });
         } finally {
-            // Set submitting to false to enable the form submit button
-            setSubmitting(false);
+          // Set submitting to false to enable the form submit button
+          setSubmitting(false);
         }
-    };
+      };
+      
     
-
-
-
 
     const eventSchema = Yup.object().shape({
         eventId: Yup.string().required('Event ID is required'),
@@ -70,9 +73,9 @@ const CreateEventPage = () => {
             twitter: Yup.string().url('Invalid URL format').required('Twitter link is required'),
             instagram: Yup.string().url('Invalid URL format').required('Instagram link is required'),
         }),
+        logo: Yup.mixed().required('Logo is required'),
+        banner: Yup.mixed().required('Banner is required'),
     });
-
-
 
     return (
         <div>
@@ -124,9 +127,21 @@ const CreateEventPage = () => {
                         <Field type="text" id="socialMediaLinks.instagram" name="socialMediaLinks.instagram" />
                         <ErrorMessage name="socialMediaLinks.instagram" component="div" />
                     </div>
+                    <div>
+                        <label htmlFor="logo">Logo:</label>
+                        <Field type="file" id="logo" name="logo" />
+                        <ErrorMessage name="logo" component="div" />
+                    </div>
+                    <div>
+                        <label htmlFor="banner">Banner:</label>
+                        <Field type="file" id="banner" name="banner" />
+                        <ErrorMessage name="banner" component="div" />
+                    </div>
+                    
                     <button type="submit">Create Event</button>
                 </Form>
             </Formik>
+            <>{success}</>
         </div>
     )
 };
