@@ -1,13 +1,13 @@
 "use client"
-import React, { useState, useEffect } from 'react';
-import { useAppRouter } from 'next/router';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/router';
 import axios from 'axios';
 
 const EventDetailsPage = () => {
-  const router = useAppRouter();
+  const router = useRouter();
   const [data, setData] = useState({});
   const eventId = router.query.id;
-
+    
   useEffect(() => {
 
     console.log("he", eventId)

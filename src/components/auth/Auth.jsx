@@ -8,7 +8,7 @@ const Auth = (WrappedComponent) => {
       const token = localStorage.getItem('access_token');
 
       if (!token) {
-        window.location.href = '/login'; 
+        router.push('/login');
       }
     }, []);
 
@@ -18,4 +18,4 @@ const Auth = (WrappedComponent) => {
   return AuthenticatedComponent;
 };
 
-export default Auth
+export default Auth;
