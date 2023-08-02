@@ -7,7 +7,7 @@ import { useState } from "react";
 
 const CreateEventPage = () => {
 
-    const [success, setSuccess] = useState('')
+    const [success, setSuccess] = useState('');
 
     const initialValues = {
         eventId: '',
@@ -21,44 +21,62 @@ const CreateEventPage = () => {
             twitter: '',
             instagram: '',
         },
-        logo: '',
-        banner: '',
+        logo: null, // Store the selected logo file here
+        banner: null, // Store the selected banner file here
     };
-
 
     const handleSubmit = async (values, { setSubmitting, setErrors }) => {
         try {
             console.log(values)
-          // Get the authentication token from storage
-          const token = localStorage.getItem('access_token');
-      
-          // Include the token in the request headers
-          const headers = {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json', // Add this line to set Content-Type to JSON
-          };
-      
-          // Make the API call to create the event using axios
-          const response = await axios.post(
-            'http://192.168.200.42:9003/admin/event/createEvent',
-            values,
-            { headers }
-          );
-      
-          console.log('Event created successfully!', response.data);
-      
-          // Set the success status to true upon successful submission
-        } catch (error) {
-          console.error('Error creating event:', error);
-          setErrors({ submitError: 'Failed to create event. Please try again later.' });
-        } finally {
-          // Set submitting to false to enable the form submit button
-          setSubmitting(false);
-        }
-      };
-      
+            // Create a FormData object to send the form data and files
+            const formData = new FormData();
+            formData.append('eventId', values.eventId);
+            formData.append('eventName', values.eventName);
+            formData.append('eventUrl', values.eventUrl);
+            formData.append('description', values.description);
+            formData.append('startDate', values.startDate);
+            formData.append('endDate', values.endDate);
+            // Append other form data fields...
     
-
+            // Append the logo image file (if present)
+            if (values.logo instanceof File) {
+                formData.append('logo', values.logo);
+            }
+    
+            // Append the banner image file (if present)
+            if (values.banner instanceof File) {
+                formData.append('banner', values.banner);
+            }
+    
+            // Get the authentication token from storage
+            const token = localStorage.getItem('access_token');
+    
+            // Include the token in the request headers
+            const headers = {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'multipart/form-data', // Set the content type to 'multipart/form-data'
+            };
+    
+            // Make the API call to create the event using axios with the headers
+            const response = await axios.post(
+                'http://192.168.200.42:9003/admin/event/createEvent',
+                formData,
+                { headers }
+            );
+    
+            console.log('Event created successfully!', response.data);
+            window.location.href = '/dashboard/events';
+            // Set the success status to true upon successful submission
+            setSuccess('Event Created Successfully!');
+        } catch (error) {
+            console.error('Error creating event:', error);
+            setErrors({ submitError: 'Failed to create event. Please try again later.' });
+        } finally {
+            // Set submitting to false to enable the form submit button
+            setSubmitting(false);
+        }
+    };
+    
     const eventSchema = Yup.object().shape({
         eventId: Yup.string().required('Event ID is required'),
         eventName: Yup.string().required('Event Name is required'),
@@ -81,6 +99,7 @@ const CreateEventPage = () => {
         <div>
             <h1>Create Event</h1>
             <Formik initialValues={initialValues} validationSchema={eventSchema} onSubmit={handleSubmit}>
+            {({ setFieldValue }) => (
                 <Form>
                     <div>
                         <label htmlFor="eventId">Event ID:</label>
@@ -129,17 +148,35 @@ const CreateEventPage = () => {
                     </div>
                     <div>
                         <label htmlFor="logo">Logo:</label>
-                        <Field type="file" id="logo" name="logo" />
+                        <input
+                            type="file"
+                            id="logo"
+                            name="logo"
+                            accept="image/*"
+                            onChange={(event) => {
+                                setFieldValue('logo', event.currentTarget.files[0]);
+                            }}
+                        />
                         <ErrorMessage name="logo" component="div" />
                     </div>
                     <div>
                         <label htmlFor="banner">Banner:</label>
-                        <Field type="file" id="banner" name="banner" />
+                        <input
+                            type="file"
+                            id="banner"
+                            name="banner"
+                            accept="image/*"
+                            onChange={(event) => {
+                                setFieldValue('banner', event.currentTarget.files[0]);
+                            }}
+                        />
                         <ErrorMessage name="banner" component="div" />
                     </div>
-                    
+                    {/* ... (other form fields) ... */}
+
                     <button type="submit">Create Event</button>
                 </Form>
+                )}
             </Formik>
             <>{success}</>
         </div>
