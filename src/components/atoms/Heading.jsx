@@ -1,6 +1,7 @@
-import React from 'react'
+import React from 'react';
+import PropTypes from 'prop-types';
 
-function Heading({level, children}) {
+function Heading({ level, children }) {
 
     const HeadingTag = `h${level}`
 
@@ -15,7 +16,7 @@ function Heading({level, children}) {
           case '4':
             return 'text-2xl text-pink';
           case '5':
-            return 'text-xl text-secondary';
+            return 'text-xl text-secondary text-[16px] font-bold';
           case '6':
             return 'text-lg text-secondary';
           default:
