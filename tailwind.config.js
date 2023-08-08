@@ -13,7 +13,8 @@ module.exports = {
       colors: {
         fieldButton: '#F0F0F0',
         bgHover: '#FFEFC6',
-        fieldButtonColor: '#2B2B2B'
+        textColor: '#2B2B2B',
+        bluebg: '#1475DC'
       },
     },
   },
