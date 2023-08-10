@@ -16,16 +16,20 @@
   }
 }
 
-body {
-  /* color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb)); */
+.ixb-flex-align {
+  display: flex;
+  align-items: center;
 }
-
-input {
-  border: 1px solid;
+.ixb-flex-justify {
+  display: flex;
+  justify-content: center;
+}
+.ixb-flex-both {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.ixb-flex-col {
+  display: flex;
+  flex-direction: column;
 }

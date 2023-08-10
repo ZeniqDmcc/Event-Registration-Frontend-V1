@@ -2,8 +2,18 @@
 import { useState } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import axios from 'axios';
+import Label from '@/components/atoms/Label';
+import "@/../../globals.css"
+import Input from '@/components/atoms/Input';
+import Button from '@/components/atoms/Button';
+import FormValidationMessage from '@/components/atoms/FormValidationMessage';
+import Heading from '@/components/atoms/Heading';
 
 function LoginPage() {
+
+    let formOuter = 'lg:w-[392px] mx-auto rounded-[8px] bg-white shadow-md p-10 h-[632px]'
+    let formInnerStyle = 'ixb-flex-col gap-7 pt-5'
+    let inputOuter = 'ixb-flex-col gap-2'
 
     const [loginError, setLoginError] = useState('');
 
@@ -26,29 +36,36 @@ function LoginPage() {
     };
 
     return (
-        <div>
-            <h1>Login</h1>
+        <div className='ixb-flex-align h-[100vh]'>
+            <div className={formOuter}>
+            <div className='text-center'>
+                <Heading level='1'>Admin Login</Heading>
+            </div>
             <Formik
                 initialValues={{ userId: '', password: '' }} // Corrected from "userId" to "userId"
                 onSubmit={handleFormSubmit}
             >
                 <Form>
-                    <div>
-                        <label htmlFor="user">User ID:</label>
-                        <Field type="text" id="user" name="userId" /> {/* Corrected from "userId" to "userId" */}
+                    <div className={formInnerStyle}>
+                        <div className={inputOuter}>
+                            <Label htmlFor="userId">Admin ID</Label>
+                            <Field inputType="text" component={Input} id="user" name="userId" /> {/* Corrected from "userId" to "userId" */}
+                        </div>
+                        <div className={inputOuter}>
+                            <Label htmlFor='password'>Password</Label>
+                            <Field component={Input} inputType="password" id="password" name="password" />
+                        </div>
+                        <ErrorMessage name="userId" component="div" /> {/* Corrected from "user" to "userId" */}
+                        <ErrorMessage name="password" component="div" />
+                        <div>
+                            {loginError && <div><FormValidationMessage type='error' message={loginError} /></div>}
+                        </div>
+                        {/* <button type="submit">Login</button> */}
+                        <Button variant="primary">Login</Button>
                     </div>
-                    <div>
-                        <label htmlFor="password">Password:</label>
-                        <Field type="password" id="password" name="password" />
-                    </div>
-                    <ErrorMessage name="userId" component="div" /> {/* Corrected from "user" to "userId" */}
-                    <ErrorMessage name="password" component="div" />
-                    <div>
-                        {loginError && <div>{loginError}</div>}
-                    </div>
-                    <button type="submit">Login</button>
                 </Form>
             </Formik>
+        </div>
         </div>
     )
 }
