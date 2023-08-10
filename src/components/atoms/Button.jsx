@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/router';
 
-const Button = ({ children, variant, onClick, href }) => {
+const Button = ({ children, variant, onClick, href, customButtonStyle }) => {
   const router = useRouter();
   let buttonStyles = {};
 
@@ -16,7 +16,6 @@ const Button = ({ children, variant, onClick, href }) => {
         fontWeight: 'bold',
         cursor: 'pointer',
         border: 0,
-        width: '100%',
         height: '52px',
       };
       break;
@@ -34,29 +33,46 @@ const Button = ({ children, variant, onClick, href }) => {
         height: '52px',
       };
       break;
-    // Add more cases for different variants as needed
+    case 'hoverButton':
+      buttonStyles = {
+        backgroundColor: '#F0F0F0',
+        color: '#2B2B2B',
+        padding: '5px 20px',
+        borderRadius: '6px',
+        fontSize: '16px',
+        fontWeight: 'bold',
+        cursor: 'pointer',
+        border: 0,
+        width: '100%',
+        height: '52px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '5px'
+      };
+      break;
     default:
-      buttonStyles = {}; // No specific styles for other variants
+      buttonStyles = {}; 
   }
 
-  // Hover styles
   const [hovered, setHovered] = useState(false);
   const hoverStyles = {
     backgroundColor: variant === 'primary' ? '#FFEFC6' : '#FFEFC6',
     color: variant === 'primary' ? '#000' : '#000',
   };
 
-  // Handle click and redirect
   const handleClick = () => {
     if (href) {
-      router.push(href); // Redirect to the specified href
+      router.push(href);
     } else if (onClick) {
-      onClick(); // Call the onClick function if provided
+      onClick();
     }
   };
 
+  let ButtonStyle = `${buttonStyles} ${customButtonStyle}`;
+
   return (
     <button
+      className={ButtonStyle}
       style={{
         ...buttonStyles,
         backgroundColor: hovered ? hoverStyles.backgroundColor : buttonStyles.backgroundColor,

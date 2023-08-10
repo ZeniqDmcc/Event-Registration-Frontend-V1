@@ -16,3 +16,20 @@
   }
 }
 
+.ixb-flex-align {
+  display: flex;
+  align-items: center;
+}
+.ixb-flex-justify {
+  display: flex;
+  justify-content: center;
+}
+.ixb-flex-both {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.ixb-flex-col {
+  display: flex;
+  flex-direction: column;
+}

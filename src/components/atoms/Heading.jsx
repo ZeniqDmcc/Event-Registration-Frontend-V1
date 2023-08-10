@@ -8,7 +8,7 @@ function Heading({ level, children }) {
     const getHeadingStyles = (level) => {
         switch (level) {
           case '1':
-            return 'text-5xl text-secondary';
+            return 'text-[28px] font-[700] text-textColor flex items-center';
           case '2':
             return 'text-4xl text-blue';
           case '3':
@@ -16,7 +16,7 @@ function Heading({ level, children }) {
           case '4':
             return 'text-2xl text-pink';
           case '5':
-            return 'text-xl text-secondary text-[16px] font-bold';
+            return 'text-[16px] font-[600] text-textColor';
           case '6':
             return 'text-lg text-secondary';
           default:

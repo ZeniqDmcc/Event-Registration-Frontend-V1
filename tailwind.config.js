@@ -16,6 +16,12 @@ module.exports = {
         textColor: '#2B2B2B',
         bluebg: '#1475DC'
       },
+      boxShadow: {
+        primary: '0px 2px 4px 0px rgba(0, 0, 0, 0.15)', // Your custom shadow color
+      },
+      borderColor: {
+        inBorder: 'var(--grey-500, #E0E0E0)', // Your custom border color
+      },
     },
   },
   plugins: [],
