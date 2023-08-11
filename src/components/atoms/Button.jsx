@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/router';
 
-const Button = ({ children, variant, onClick, href, customButtonStyle }) => {
+const Button = ({ children, variant, onClick, href, customButtonStyle, type }) => {
   const router = useRouter();
   let buttonStyles = {};
 
@@ -78,7 +78,7 @@ const Button = ({ children, variant, onClick, href, customButtonStyle }) => {
         backgroundColor: hovered ? hoverStyles.backgroundColor : buttonStyles.backgroundColor,
         color: hovered ? hoverStyles.color : buttonStyles.color,
       }}
-      type="button"
+      type={type}
       onClick={handleClick}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}

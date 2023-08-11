@@ -10,9 +10,9 @@ function Heading({ level, children }) {
           case '1':
             return 'text-[28px] font-[700] text-textColor flex items-center';
           case '2':
-            return 'text-4xl text-blue';
+            return 'text-[24px] font-[700] text-textColor flex items-center';
           case '3':
-            return 'text-3xl text-red';
+            return 'text-[22px] font-[700] text-textColor flex items-center';
           case '4':
             return 'text-2xl text-pink';
           case '5':

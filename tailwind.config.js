@@ -18,11 +18,25 @@ module.exports = {
       },
       boxShadow: {
         primary: '0px 2px 4px 0px rgba(0, 0, 0, 0.15)', // Your custom shadow color
+        secondary: '0px 2px 6px 2px rgba(0, 0, 0, 0.15)', // Your custom shadow color
       },
       borderColor: {
         inBorder: 'var(--grey-500, #E0E0E0)', // Your custom border color
       },
     },
   },
-  plugins: [],
+  plugins: [
+    function ({ addUtilities }) {
+      addUtilities({
+        '#eventbg': {
+          'background-image': "url('/events/dummy.png')",
+          'background-size': 'cover'
+        },
+        '#formbg': {
+          'background-image': "url('/events/dummy2.png')",
+          'background-size': 'cover'
+        },
+      })
+    }
+  ],
 };
