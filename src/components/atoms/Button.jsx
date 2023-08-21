@@ -16,7 +16,6 @@ const Button = ({ children, variant, onClick, href, customButtonStyle, type }) =
         fontWeight: 'bold',
         cursor: 'pointer',
         border: 0,
-        height: '52px',
       };
       break;
     case 'secondary':
@@ -28,9 +27,6 @@ const Button = ({ children, variant, onClick, href, customButtonStyle, type }) =
         fontSize: '16px',
         fontWeight: 'bold',
         cursor: 'pointer',
-        border: 0,
-        width: '100%',
-        height: '52px',
       };
       break;
     case 'hoverButton':
@@ -72,7 +68,7 @@ const Button = ({ children, variant, onClick, href, customButtonStyle, type }) =
 
   return (
     <button
-      className={ButtonStyle}
+      className={`${ButtonStyle} h-[52px]`}
       style={{
         ...buttonStyles,
         backgroundColor: hovered ? hoverStyles.backgroundColor : buttonStyles.backgroundColor,

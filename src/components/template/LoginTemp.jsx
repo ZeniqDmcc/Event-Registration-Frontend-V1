@@ -11,7 +11,7 @@ function LoginTemp() {
 
     const handleFormSubmit = async (values) => {
         try {
-            const response = await axios.post('http://192.168.200.42:9003/admin/loginAdmin', values);
+            const response = await axios.post('http://localhost:9003/admin/loginAdmin', values);
             const token = response.data.data;
 
             // Store the JWT token in localStorage with the key "access_token"

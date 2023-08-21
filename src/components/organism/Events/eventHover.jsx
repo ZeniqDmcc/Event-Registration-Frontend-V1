@@ -1,19 +1,18 @@
-import React from 'react'
-import Button from '../atoms/Button'
-import Heading from '../atoms/Heading'
+import Button from '../../atoms/Button'
 
-function EventHover() {
+function EventHover({ Delete, ViewEvent, EditEvent, eventId, onClose }) {
+
     return (
-        <div className='bg-white hidden event-hover max-w-[300px] h-[349px] mb-6 p-3 shadow-secondary gap-2 group-hover:flex flex-col rounded-[6px]'>
-            <Button variant='hoverButton' href='/dashboard'>
+        <div className='bg-white hidden absolute top-[0px] left-0 w-[100%] event-hover max-w-[300px] h-[349px] mb-6 p-3 shadow-secondary gap-2 group-hover:flex flex-col rounded-[6px]'>
+            <Button variant='hoverButton'  onClick={() => ViewEvent(eventId)}>
                 <img src="/Hover/Eye.svg" alt="View" />
                 View
             </Button>
-            <Button variant='hoverButton' href='/dashboard'>
+            <Button variant='hoverButton'   onClick={() => EditEvent(eventId)}>
                 <img src="/Hover/PencilSimpleLine.svg" alt="Edit" />
                 Edit
             </Button>
-            <Button variant='hoverButton' href='/dashboard'>
+            <Button variant='hoverButton' onClick={ Delete }>
                 <img src="/Hover/Trash.svg" alt="Delete" />
                 Delete
             </Button>

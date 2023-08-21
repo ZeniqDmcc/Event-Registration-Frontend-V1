@@ -1,16 +1,15 @@
 "use client"
-import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/router';
 import axios from 'axios';
-
-const EventDetailsPage = () => {
-    const router = useRouter();
+import { useEffect, useState } from 'react';
+ 
+const ViewSingleEvent = ({ eventId }) => {
     const [event, setEvent] = useState(null);
-    const eventId = router.query.id;
 
+    console.log(eventId)
+    
     useEffect(() => {
         if (!eventId) return;
-
+        
         const fetchEvent = async () => {
             try {
                 const token = localStorage.getItem('access_token');
@@ -47,8 +46,6 @@ const EventDetailsPage = () => {
             });
 
             if (response.data.status === true) {
-                // Event successfully deleted, you can update the UI or fetch the events again to refresh the list
-                // For now, let's redirect the user to the events list page after deleting the event
                 router.push('/dashboard/events');
             } else {
                 console.error('Error deleting event:', response.data.error);
@@ -59,7 +56,6 @@ const EventDetailsPage = () => {
     };
 
     const handleEdit = () => {
-        // Redirect the user to the EditEventPage with the eventId as a query parameter
         router.push(`/dashboard/events/editevent/${eventId}`);
     };
 
@@ -87,4 +83,4 @@ const EventDetailsPage = () => {
     );
 };
 
-export default EventDetailsPage;
+export default ViewSingleEvent;

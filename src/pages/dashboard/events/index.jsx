@@ -17,7 +17,7 @@ const EventDetails = () => {
                 Authorization: `Bearer ${token}`,
             };
 
-            const response = await axios.get('http://192.168.200.42:9003/admin/event/fetchAllEvents', {
+            const response = await axios.get('http://localhost:9003/admin/event/fetchAllEvents', {
                 headers: headers,
             });
 
@@ -38,7 +38,7 @@ const EventDetails = () => {
                 Authorization: `Bearer ${token}`,
             };
 
-            const response = await axios.delete(`http://192.168.200.42:9003/admin/event/${eventId}`, {
+            const response = await axios.delete(`http://localhost:9003/admin/event/${eventId}`, {
                 headers: headers,
             });
 

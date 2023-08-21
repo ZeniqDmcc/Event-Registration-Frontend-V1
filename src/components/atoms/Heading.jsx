@@ -16,7 +16,7 @@ function Heading({ level, children }) {
           case '4':
             return 'text-2xl text-pink';
           case '5':
-            return 'text-[16px] font-[600] text-textColor';
+            return 'text-[18px] font-[600] text-textColor';
           case '6':
             return 'text-lg text-secondary';
           default:

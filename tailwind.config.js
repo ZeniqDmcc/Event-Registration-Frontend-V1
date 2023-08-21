@@ -28,10 +28,10 @@ module.exports = {
   plugins: [
     function ({ addUtilities }) {
       addUtilities({
-        '#eventbg': {
-          'background-image': "url('/events/dummy.png')",
-          'background-size': 'cover'
-        },
+        // '#eventbg': {
+        //   'background-image': "url('/events/dummy.png')",
+        //   'background-size': 'cover'
+        // },
         '#formbg': {
           'background-image': "url('/events/dummy2.png')",
           'background-size': 'cover'

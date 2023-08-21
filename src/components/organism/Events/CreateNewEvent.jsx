@@ -4,9 +4,10 @@ import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import axios from 'axios';
 import { useState } from "react";
-import Input from "../atoms/Input";
+import Input from "../../atoms/Input";
+import Button from "../../atoms/Button";
 
-const CreateEventPage = () => {
+const CreateNewEvent = ({ handleSubmit }) => {
 
     const [success, setSuccess] = useState('');
 
@@ -26,15 +27,8 @@ const CreateEventPage = () => {
         banner: null, // Store the selected banner file here
     };
 
-    const handleSubmit = async (values, { setSubmitting, setErrors }) => {
+    handleSubmit = async (values, { setSubmitting, setErrors }) => {
         try {
-            // Check if the event with the given eventId already exists
-            // const eventExistResponse = await axios.get(`http://192.168.200.42:9003/admin/event/${values.eventId}`);
-            // if (eventExistResponse.data.status === true) {
-            //   // Event with the same eventId already exists, show an error message
-            //   setErrors({ eventId: 'Event with this ID already exists. Please choose a different ID.' });
-            //   return; // Return early to prevent further execution
-            // }
 
             console.log(values)
             // Create a FormData object to send the form data and files
@@ -43,6 +37,7 @@ const CreateEventPage = () => {
             formData.append('eventName', values.eventName);
             formData.append('eventUrl', values.eventUrl);
             formData.append('description', values.description);
+            formData.append('email', values.email);
             formData.append('startDate', values.startDate);
             formData.append('endDate', values.endDate);
             // Append other form data fields...
@@ -60,6 +55,8 @@ const CreateEventPage = () => {
             // Get the authentication token from storage
             const token = localStorage.getItem('access_token');
 
+            console.log(token)
+
             // Include the token in the request headers
             const headers = {
                 Authorization: `Bearer ${token}`,
@@ -68,7 +65,7 @@ const CreateEventPage = () => {
 
             // Make the API call to create the event using axios with the headers
             const response = await axios.post(
-                'http://192.168.200.42:9003/admin/event/createEvent',
+                'http://localhost:9003/admin/event/createEvent',
                 formData,
                 { headers }
             );
@@ -91,6 +88,7 @@ const CreateEventPage = () => {
         eventName: Yup.string().required('Event Name is required'),
         eventUrl: Yup.string().url('Invalid URL format').required('Event URL is required'),
         description: Yup.string().required('Description is required'),
+        // email: Yup.string().required('email Id is required'),
         startDate: Yup.date().required('Start Date is required'),
         endDate: Yup.date()
             .required('End Date is required')
@@ -104,7 +102,7 @@ const CreateEventPage = () => {
         banner: Yup.mixed().required('Banner is required'),
     });
 
-    let inputOuter = "flex gap-2 flex-col w-[48%]"
+    let inputOuter = "flex gap-1 flex-col w-[48%]"
     let inputRowBoxes = "flex justify-between items-center"
     let errorMessage = "text-red-600 font-[500] text-[12px]"
 
@@ -151,16 +149,6 @@ const CreateEventPage = () => {
                             </div>
                             {/*  */}
                             <div className={inputRowBoxes}>
-                                <div className="flex flex-col w-[80%]">
-                                    <label htmlFor="emailId">Email ID</label>
-                                    <Field component={Input} inputType="email" id="emailId" name="emailid" />
-                                    <ErrorMessage className={errorMessage} name="Email ID" component="div" />
-                                </div>
-                                <div className="mt-5">
-                                    <img src="/Hover/State=off.svg" />
-                                </div>
-                            </div>
-                            <div className={inputRowBoxes}>
                                 <div className={inputOuter}>
                                     <label htmlFor="socialMediaLinks.instagram">Instagram</label>
                                     <Field component={Input} inputType="text" id="socialMediaLinks.instagram" name="socialMediaLinks.instagram" />
@@ -178,13 +166,13 @@ const CreateEventPage = () => {
                                     <Field component={Input} inputType="text" id="socialMediaLinks.facebook" name="socialMediaLinks.facebook" />
                                     <ErrorMessage className={errorMessage} name="socialMediaLinks.facebook" component="div" />
                                 </div>
-                                <div className={inputOuter}>
+                                {/* <div className={inputOuter}>
                                     <label htmlFor="socialMediaLinks.facebook">Facebook</label>
                                     <Field component={Input} inputType="text" id="socialMediaLinks.facebook" name="socialMediaLinks.facebook" />
                                     <ErrorMessage className={errorMessage} name="socialMediaLinks.facebook" component="div" />
-                                </div>
+                                </div> */}
                             </div>
-                            <div className="hidden">
+                            <div className="">
                                 <label htmlFor="logo">Logo:</label>
                                 <input
                                     type="file"
@@ -197,7 +185,7 @@ const CreateEventPage = () => {
                                 />
                                 <ErrorMessage className={errorMessage} name="logo" component="div" />
                             </div>
-                            <div className="hidden">
+                            <div className="">
                                 <label htmlFor="banner">Banner:</label>
                                 <input
                                     type="file"
@@ -212,7 +200,23 @@ const CreateEventPage = () => {
                             </div>
                             {/* ... (other form fields) ... */}
 
-                            <button inputType="submit">Create Event</button>
+                            <div className="mt-5 flex justify-between">
+                                {/* <Button
+                                    customButtonStyle="w-[48%]"
+                                    inputType="submit"
+                                    variant="primary"
+                                >
+                                    Create Event
+                                </Button> */}
+                                <button type="submit">Save</button>
+                                {/* <Button
+                                    customButtonStyle="w-[48%] border-[1px] border-[#A8A8A8]"
+                                    inputType="submit"  // Change inputType to "button"
+                                    variant="secondary"
+                                >
+                                    Save and Exit
+                                </Button> */}
+                            </div>
                         </div>
                     </Form>
                 )}
@@ -222,4 +226,4 @@ const CreateEventPage = () => {
     )
 };
 
-export default Auth(CreateEventPage);
+export default CreateNewEvent;
