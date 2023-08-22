@@ -27,14 +27,6 @@ const CreateEventPage = () => {
 
     const handleSubmit = async (values, { setSubmitting, setErrors }) => {
         try {
-            // Check if the event with the given eventId already exists
-    // const eventExistResponse = await axios.get(`http://192.168.200.42:9003/admin/event/${values.eventId}`);
-    // if (eventExistResponse.data.status === true) {
-    //   // Event with the same eventId already exists, show an error message
-    //   setErrors({ eventId: 'Event with this ID already exists. Please choose a different ID.' });
-    //   return; // Return early to prevent further execution
-    // }
-    
             console.log(values)
             // Create a FormData object to send the form data and files
             const formData = new FormData();
@@ -67,7 +59,7 @@ const CreateEventPage = () => {
     
             // Make the API call to create the event using axios with the headers
             const response = await axios.post(
-                'http://192.168.200.42:9003/admin/event/createEvent',
+                'http://localhost:9003/admin/event/createEvent',
                 formData,
                 { headers }
             );

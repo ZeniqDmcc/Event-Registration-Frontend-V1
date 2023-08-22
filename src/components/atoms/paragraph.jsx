@@ -4,7 +4,7 @@ const Paragraph = ({ children, variant }) => {
     switch (variant) {
       case 'primary':
         paragraphStyles = {
-          color: 'blue',
+          color: '#2B2B2B',
           fontSize: '18px',
           fontWeight: 'bold',
         };

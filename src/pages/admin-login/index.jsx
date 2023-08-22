@@ -19,7 +19,8 @@ function LoginPage() {
 
     const handleFormSubmit = async (values) => {
         try {
-            const response = await axios.post('http://192.168.200.42:9003/admin/loginAdmin', values);
+            console.log(values)
+            const response = await axios.post('http://localhost:9003/admin/loginAdmin', values);
             const token = response.data.data;
 
             // Store the JWT token in localStorage with the key "access_token"
@@ -38,34 +39,33 @@ function LoginPage() {
     return (
         <div className='ixb-flex-align h-[100vh]'>
             <div className={formOuter}>
-            <div className='text-center'>
-                <Heading level='1'>Admin Login</Heading>
+                <div className='text-center'>
+                    <Heading level='1'>Admin Login</Heading>
+                </div>
+                <Formik
+                    initialValues={{ userId: '', password: '' }}
+                    onSubmit={handleFormSubmit}
+                >
+                    <Form>
+                        <div className={formInnerStyle}>
+                            <div className={inputOuter}>
+                                <Label htmlFor="userId">Admin ID</Label>
+                                <Field component={Input} inputType="text" id="user" name="userId" />
+                            </div>
+                            <div className={inputOuter}>
+                                <Label htmlFor="password">Password</Label>
+                                <Field component={Input}  inputType="password" id="password" name="password" />
+                            </div>
+                            <ErrorMessage name="userId" component="div" />
+                            <ErrorMessage name="password" component="div" />
+                            <div>
+                                {loginError && <div><FormValidationMessage type='error' message={loginError} /></div>}
+                            </div>
+                            <Button variant="primary">Login</Button>
+                        </div>
+                    </Form>
+                </Formik>
             </div>
-            <Formik
-                initialValues={{ userId: '', password: '' }} // Corrected from "userId" to "userId"
-                onSubmit={handleFormSubmit}
-            >
-                <Form>
-                    <div className={formInnerStyle}>
-                        <div className={inputOuter}>
-                            <Label htmlFor="userId">Admin ID</Label>
-                            <Field inputType="text" component={Input} id="user" name="userId" /> {/* Corrected from "userId" to "userId" */}
-                        </div>
-                        <div className={inputOuter}>
-                            <Label htmlFor='password'>Password</Label>
-                            <Field component={Input} inputType="password" id="password" name="password" />
-                        </div>
-                        <ErrorMessage name="userId" component="div" /> {/* Corrected from "user" to "userId" */}
-                        <ErrorMessage name="password" component="div" />
-                        <div>
-                            {loginError && <div><FormValidationMessage type='error' message={loginError} /></div>}
-                        </div>
-                        {/* <button type="submit">Login</button> */}
-                        <Button variant="primary">Login</Button>
-                    </div>
-                </Form>
-            </Formik>
-        </div>
         </div>
     )
 }

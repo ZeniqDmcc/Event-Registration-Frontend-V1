@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/router';
 
-const Button = ({ children, variant, onClick, href, customButtonStyle }) => {
+const Button = ({ children, variant, onClick, href, customButtonStyle, type }) => {
   const router = useRouter();
   let buttonStyles = {};
 
@@ -16,7 +16,6 @@ const Button = ({ children, variant, onClick, href, customButtonStyle }) => {
         fontWeight: 'bold',
         cursor: 'pointer',
         border: 0,
-        height: '52px',
       };
       break;
     case 'secondary':
@@ -28,9 +27,6 @@ const Button = ({ children, variant, onClick, href, customButtonStyle }) => {
         fontSize: '16px',
         fontWeight: 'bold',
         cursor: 'pointer',
-        border: 0,
-        width: '100%',
-        height: '52px',
       };
       break;
     case 'hoverButton':
@@ -72,13 +68,13 @@ const Button = ({ children, variant, onClick, href, customButtonStyle }) => {
 
   return (
     <button
-      className={ButtonStyle}
+      className={`${ButtonStyle} h-[52px]`}
       style={{
         ...buttonStyles,
         backgroundColor: hovered ? hoverStyles.backgroundColor : buttonStyles.backgroundColor,
         color: hovered ? hoverStyles.color : buttonStyles.color,
       }}
-      type="button"
+      type={type}
       onClick={handleClick}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}

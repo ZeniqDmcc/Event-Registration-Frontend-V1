@@ -1,13 +1,10 @@
-"use client"
-// pages/dashboard/events/edit/EditEventPage.jsx
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/router';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { XIcon } from '@heroicons/react/solid';
+import Heading from '@/components/atoms/Heading';
 
-const EditEventPage = () => {
-  const router = useRouter();
-  const { id } = router.query;
-  const [formData, setFormData] = useState({
+const EditEventModel = ({ onClose, eventId }) => {
+  const [eventData, seteventData] = useState({
     eventName: '',
     eventUrl: '',
     description: '',
@@ -19,7 +16,7 @@ const EditEventPage = () => {
   });
 
   useEffect(() => {
-    if (!id) return;
+    if (!eventId) return;
 
     const fetchEvent = async () => {
       try {
@@ -28,12 +25,12 @@ const EditEventPage = () => {
           Authorization: `Bearer ${token}`,
         };
 
-        const response = await axios.get(`http://localhost:9003/admin/event/${id}`, {
+        const response = await axios.get(`http://localhost:9003/admin/event/${eventId}`, {
           headers: headers,
         });
 
         if (response.data.status === true) {
-          setFormData(response.data.data);
+          seteventData(response.data.data);
         } else {
           console.error('Error fetching event:', response.data.error);
         }
@@ -43,12 +40,12 @@ const EditEventPage = () => {
     };
 
     fetchEvent();
-  }, [id]);
+  }, [eventId]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prevFormData) => ({
-      ...prevFormData,
+    seteventData((preveventData) => ({
+      ...preveventData,
       [name]: value,
     }));
   };
@@ -56,13 +53,11 @@ const EditEventPage = () => {
   const handleImageUpload = (e) => {
     const { name, files } = e.target;
     if (files && files[0]) {
-      // Assuming only one file is uploaded, you can handle multiple files if needed
       const file = files[0];
       const reader = new FileReader();
       reader.onloadend = () => {
-        // Get the base64 encoded data URL of the image
-        setFormData((prevFormData) => ({
-          ...prevFormData,
+        seteventData((preveventData) => ({
+          ...preveventData,
           [name]: reader.result,
         }));
       };
@@ -70,7 +65,7 @@ const EditEventPage = () => {
     }
   };
 
-  const handleSubmit = async (e) => {
+  const handleEditSubmit = async (e) => {
     e.preventDefault();
 
     try {
@@ -79,13 +74,13 @@ const EditEventPage = () => {
         Authorization: `Bearer ${token}`,
       };
 
-      const response = await axios.put(`http://localhost:9003/admin/event/${id}`, formData, {
+      const response = await axios.put(`http://localhost:9003/admin/event/${eventId}`, eventData, {
         headers: headers,
       });
 
       if (response.data.status === true) {
-        // Event successfully updated, you can update the UI or redirect to the event details page
-        router.push(`/dashboard/events/eventdetails/${id}`);
+        // Event successfully updated, you can update the UI or take any necessary action
+        onClose(); // Close the edit modal after successful edit
       } else {
         console.error('Error updating event:', response.data.error);
       }
@@ -94,54 +89,61 @@ const EditEventPage = () => {
     }
   };
 
-
   return (
-    <div>
-      <h1>Edit Event</h1>
-      <form onSubmit={handleSubmit}>
+    <div className='fixed inset-0 flex justify-center items-center bg-white'>
+      <div className='bg-white rounded-lg p-6 w-[80%] ob'>
+        <div className='flex justify-between'>
+          <Heading level='2'>Edit Event</Heading>
+          <button className='text-gray-500 hover:text-gray-700' onClick={onClose}>
+            <XIcon className='w-5 h-5' />
+          </button>
+        </div>
+
+        <form onSubmit={handleEditSubmit}>
         <div>
           <label>Event Name:</label>
-          <input type="text" name="eventName" value={formData.eventName} onChange={handleChange} />
+          <input type="text" name="eventName" value={eventData.eventName} onChange={handleChange} />
         </div>
         <div>
           <label>Event URL:</label>
-          <input type="text" name="eventUrl" value={formData.eventUrl} onChange={handleChange} />
+          <input type="text" name="eventUrl" value={eventData.eventUrl} onChange={handleChange} />
         </div>
         <div>
           <label>Description:</label>
-          <textarea name="description" value={formData.description} onChange={handleChange} />
+          <textarea name="description" value={eventData.description} onChange={handleChange} />
         </div>
         <div>
           <label>Registered Participants:</label>
           <input
             type="number"
             name="registeredParticipants"
-            value={formData.registeredParticipants}
+            value={eventData.registeredParticipants}
             onChange={handleChange}
           />
         </div>
         <div>
           <label>Start Date:</label>
-          <input type="date" name="startDate" value={formData.startDate} onChange={handleChange} />
+          <input type="date" name="startDate" value={eventData.startDate} onChange={handleChange} />
         </div>
         <div>
           <label>End Date:</label>
-          <input type="date" name="endDate" value={formData.endDate} onChange={handleChange} />
+          <input type="date" name="endDate" value={eventData.endDate} onChange={handleChange} />
         </div>
         <div>
           <label>Logo:</label>
           <input type="file" name="logo" accept="image/*" onChange={handleImageUpload} />
-          {formData.logo && <img src={formData.logo} alt="Logo Preview" />}
+          {eventData.logo && <img width="200" src={eventData.logo} alt="Logo Preview" />}
         </div>
         <div>
           <label>Banner:</label>
           <input type="file" name="banner" accept="image/*" onChange={handleImageUpload} />
-          {formData.banner && <img src={formData.banner} alt="Banner Preview" />}
+          {eventData.banner && <img width="200" src={eventData.banner} alt="Banner Preview" />}
         </div>
         <button type="submit">Save</button>
-      </form>
+        </form>
+      </div>
     </div>
   );
 };
 
-export default EditEventPage;
+export default EditEventModel;

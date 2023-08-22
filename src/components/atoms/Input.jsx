@@ -1,6 +1,6 @@
 import React from 'react';
 
-const Input = ({ inputType, ...restProps }) => {
+const Input = ({ inputType, field, ...restProps }) => {
   // Apply Tailwind CSS classes based on input type
   let inputStyles = '';
 
@@ -18,7 +18,7 @@ const Input = ({ inputType, ...restProps }) => {
       inputStyles = 'rounded-[3px] border p-[10px] text-[16px] text-textColor border-inBorder bg-white shadow-primary h-[46px] outline-none';
       break;
     case 'date':
-      inputStyles = 'border border-gray-500 rounded-md bg-white shadow-md p-[4px]';
+      inputStyles = 'rounded-[3px] border p-[10px] text-[16px] text-textColor border-inBorder bg-white shadow-primary h-[46px] outline-none';
       break;
     case 'checkbox':
       inputStyles = 'border border-gray-500 rounded-md bg-white shadow-md p-[4px]';
@@ -34,7 +34,7 @@ const Input = ({ inputType, ...restProps }) => {
       inputStyles = 'text-lg'; // Or any default styles you want
   }
 
-  return <input className={inputStyles} type={inputType} {...restProps} />;
+  return <input className={inputStyles} type={inputType} {...field} {...restProps} />;
 };
 
 export default Input;

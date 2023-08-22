@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import axios from 'axios';
 
-const EventDetailsPage = () => {
+const ViewSingleEvent = () => {
     const router = useRouter();
     const [event, setEvent] = useState(null);
     const eventId = router.query.id;
@@ -87,4 +87,4 @@ const EventDetailsPage = () => {
     );
 };
 
-export default EventDetailsPage;
+export default ViewSingleEvent;
