@@ -1,31 +1,132 @@
-import { XIcon } from '@heroicons/react/solid'; // You can import the X icon from Heroicons or any other icon library you prefer
+import { XIcon } from '@heroicons/react/solid';
+import { Form, Formik } from 'formik';
+import { useState } from 'react';
+import * as Yup from 'yup';
+import Button from '../../atoms/Button';
 import Heading from '../../atoms/Heading';
+import FieldButton from '../../molecules/FieldButton';
 import Footer from '../../template/Footer';
-import FromsForm from './FromsForm';
-import React, { useState } from 'react';
-import FieldButton from '../../molecules/FieldButton'
-import Button from '../../atoms/Button'
+// import { unique } from 'next/dist/build/utils';
+
+const validationSchema = Yup.object().shape({
+  text: Yup.string().required('Text field is required'),
+  textarea: Yup.string().required('Text area is required'),
+  checkbox: Yup.boolean().oneOf([true], 'Checkbox must be checked'),
+  radio: Yup.string().required('Please select a radio option'),
+  select: Yup.string().required('Please select an option'),
+  date: Yup.date().required('Date is required'),
+  file: Yup.mixed().required('File upload is required'),
+  accept: Yup.boolean().oneOf([true], 'You must accept the terms and conditions'),
+});
 
 const CreateFormModal = ({ onClose }) => {
-
   const [formFields, setFormFields] = useState([]);
+  const [label, setLabel] = useState('');
+  const [editMode, setEditMode] = useState({});
 
   const addFormField = (fieldType) => {
-    setFormFields([...formFields, fieldType]);
+    setFormFields([...formFields, { type: fieldType, label: '' }]);
+    setEditMode((prevEditModes) => ({
+      ...prevEditModes,
+      [formFields.length]: false,
+    }));
   };
-
+  
   const removeFormField = (index) => {
     const updatedFields = [...formFields];
     updatedFields.splice(index, 1);
     setFormFields(updatedFields);
+  
+    // Update editMode object to match the new length of formFields
+    const updatedEditMode = { ...editMode };
+    delete updatedEditMode[formFields.length];
+    setEditMode(updatedEditMode);
   };
 
-  const renderFormField = (fieldType, index) => {
+  const handleUnique = () => {
+    const uniqueFields = new Set();
+
+    formFields.forEach((fieldType) => {
+      if (!uniqueFields.has(fieldType)) {
+        uniqueFields.add(fieldType);
+      } else {
+        // Handle non-unique case
+        console.log(`Field type "${fieldType}" is not unique.`);
+      }
+    });
+  };
+
+  const handleRequired = () => {
+    // Assuming you have a state variable to track required fields
+    const requiredFields = new Set(['text', 'textarea', 'checkbox', 'radio', 'select', 'date', 'file', 'accept']);
+
+    // Loop through the formFields array and mark required fields
+    formFields.forEach((fieldType, index) => {
+      if (requiredFields.has(fieldType)) {
+        console.log(`Field type "${fieldType}" is now required.`);
+      } else {
+        // Handle non-required case
+        console.log(`Field type "${fieldType}" is not required.`);
+      }
+    });
+  };
+
+  const handleLabelChange = (event, index) => {
+    const newFormFields = [...formFields];
+    newFormFields[index].label = event.target.value;
+    setFormFields(newFormFields);
+  }
+
+  const handleEditModeToggle = (index) => {
+    setEditMode((prevEditModes) => ({
+      ...prevEditModes,
+      [index]: !prevEditModes[index],
+    }));
+  };
+
+  // Render Fields
+  const renderFormField = (fieldType, index, fieldLabel, editMode, handleLabelChange, handleEditModeToggle) => {
+    const isEditMode = editMode[index];
+
     switch (fieldType) {
       case 'text':
-        return <input key={index} type="text" placeholder="Text Field" />;
+        return (
+          <label key={index}>
+            {isEditMode ? (
+              <div>
+                <input type="text" value={fieldLabel} onChange={handleLabelChange} />
+                <button onClick={() => handleEditModeToggle(index)}>Save</button>
+              </div>
+            ) : (
+              <div>
+                <label>{fieldLabel}</label>
+                <button onClick={() => handleEditModeToggle(index)} className="top-[-15px] left-3 relative">
+                  <img src='/formfield/edit.svg' alt="edit" />
+                </button>
+              </div>
+            )}
+            <input type="text" placeholder="Text Field" />
+          </label>
+        );
       case 'textarea':
-        return <textarea key={index} placeholder="Text Area" />;
+        return (
+          <label key={index}>
+            {isEditMode ? (
+              <div>
+                <input type="text" value={fieldLabel} onChange={handleLabelChange} />
+                <button onClick={() => handleEditModeToggle(index)}>Save</button>
+              </div>
+            ) : (
+              <div>
+                <label>{fieldLabel}</label>
+                <button onClick={() => handleEditModeToggle(index)} className="top-[-15px] left-3 relative">
+                  <img src='/formfield/edit.svg' alt="edit" />
+                </button>
+              </div>
+            )}
+            <textarea placeholder="Text Area" />
+          </label>
+        )
       case 'checkbox':
         return (
           <label key={index}>
@@ -39,9 +140,7 @@ const CreateFormModal = ({ onClose }) => {
             <input type="radio" name="radiobutton" key={index} placeholder="Text Area" />
             <input type="radio" name="radiobutton" key={index} placeholder="Text Area" />
           </div>
-        )
-      case 'textarea':
-        return <textarea key={index} placeholder="Text Area" />;
+        );
       case 'select':
         return (
           <div key={index}>
@@ -53,7 +152,7 @@ const CreateFormModal = ({ onClose }) => {
               <option value="">Abc</option>
             </select>
           </div>
-        )
+        );
       case 'date':
         return <input type="date" key={index} placeholder="Date" />;
       case 'file':
@@ -65,14 +164,14 @@ const CreateFormModal = ({ onClose }) => {
               <input type="checkbox" /> Yes I accept terms and conditions
             </label>
           </div>
-        )
+        );
       // Add more cases for other field types
       default:
         return null;
     }
   };
 
-  let result = () => console.log("Testing")
+
   let fieldButtonStyle = "w-[48%] justify-left p-8"
 
   return (
@@ -89,22 +188,43 @@ const CreateFormModal = ({ onClose }) => {
         {/* Modal Boxes Outer */}
         <div className='flex justify-between mt-4'>
           {/* Form Display Area */}
-            <div className='w-[59%] bg-[#F0F0F0] p-5 rounded-[8px]'>
-              {/* Form Content Area */}
-              <div className="bg-white h-[63vh] ixb-flex-both overflow-y-auto"><div>
-                {formFields.map((fieldType, index) => (
-                  <div key={index}>
-                    {renderFormField(fieldType, index)}
-                    <Button
-                      customButtonStyle="w-full h-[32px] mt-2"
-                      variant="secondary"
-                      onClick={() => removeFormField(index)}
-                    >
-                      Remove
-                    </Button>
-                  </div>
-                ))}
-              </div>
+          <div className='w-[59%] bg-[#F0F0F0] p-5 rounded-[8px]'>
+            {/* Form Content Area */}
+            <div className="bg-white h-[63vh] ixb-flex-both overflow-y-auto"><div>
+              <Formik
+                initialValues={{}} // Initialize your form field values here
+                validationSchema={validationSchema}
+                onSubmit={(values, { setSubmitting }) => {
+                  console.log(values);
+                  setSubmitting(false);
+                }}
+              >
+                {({ isSubmitting }) => (
+                  <Form>
+                    <div className="flex flex-col gap-8">
+                      {formFields.map((field, index) => (
+                        <div className="flex item gap-3" key={index}>
+                          <div>{renderFormField(
+                            field.type,
+                            index,
+                            field.label,
+                            editMode,
+                            (event) => handleLabelChange(event, index),
+                            handleEditModeToggle
+                          )}</div>
+                          <div className="flex gap-2">
+                            <button onClick={handleUnique}><img src='/formfield/unique.svg' /></button>
+                            <button onClick={handleRequired}><img src='/formfield/required.svg' /></button>
+                            <button onClick={() => removeFormField(index)}><img src='/formfield/minus.svg' /></button>
+                            <button onClick={() => addFormField(field.type)}><img src='/formfield/addfield.svg' /></button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </Form>
+                )}
+              </Formik>
+            </div>
             </div>
             <Footer />
           </div>
@@ -131,7 +251,7 @@ const CreateFormModal = ({ onClose }) => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
 export default CreateFormModal
