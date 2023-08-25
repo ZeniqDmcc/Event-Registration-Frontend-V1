@@ -1,5 +1,5 @@
 import { XIcon } from '@heroicons/react/solid';
-import { Form, Formik } from 'formik';
+import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { useState } from 'react';
 import * as Yup from 'yup';
 import Button from '../../atoms/Button';
@@ -21,22 +21,22 @@ const validationSchema = Yup.object().shape({
 
 const CreateFormModal = ({ onClose }) => {
   const [formFields, setFormFields] = useState([]);
-  const [label, setLabel] = useState('');
   const [editMode, setEditMode] = useState({});
+  const [fieldLabels, setFieldLabels] = useState({});
 
   const addFormField = (fieldType) => {
-    setFormFields([...formFields, { type: fieldType, label: '' }]);
+    setFormFields([...formFields, { type: fieldType }]);
     setEditMode((prevEditModes) => ({
       ...prevEditModes,
       [formFields.length]: false,
     }));
   };
-  
+
   const removeFormField = (index) => {
     const updatedFields = [...formFields];
     updatedFields.splice(index, 1);
     setFormFields(updatedFields);
-  
+
     // Update editMode object to match the new length of formFields
     const updatedEditMode = { ...editMode };
     delete updatedEditMode[formFields.length];
@@ -72,10 +72,10 @@ const CreateFormModal = ({ onClose }) => {
   };
 
   const handleLabelChange = (event, index) => {
-    const newFormFields = [...formFields];
-    newFormFields[index].label = event.target.value;
-    setFormFields(newFormFields);
-  }
+    const newFieldLabels = { ...fieldLabels };
+    newFieldLabels[index] = event.target.value;
+    setFieldLabels(newFieldLabels);
+  };
 
   const handleEditModeToggle = (index) => {
     setEditMode((prevEditModes) => ({
@@ -85,91 +85,209 @@ const CreateFormModal = ({ onClose }) => {
   };
 
   // Render Fields
-  const renderFormField = (fieldType, index, fieldLabel, editMode, handleLabelChange, handleEditModeToggle) => {
-    const isEditMode = editMode[index];
+  const renderFormField = (field, index) => {
+    const fieldName = `${field.type}-${index}`;
 
-    switch (fieldType) {
-      case 'text':
-        return (
-          <label key={index}>
-            {isEditMode ? (
-              <div>
-                <input type="text" value={fieldLabel} onChange={handleLabelChange} />
-                <button onClick={() => handleEditModeToggle(index)}>Save</button>
-              </div>
-            ) : (
-              <div>
-                <label>{fieldLabel}</label>
-                <button onClick={() => handleEditModeToggle(index)} className="top-[-15px] left-3 relative">
-                  <img src='/formfield/edit.svg' alt="edit" />
-                </button>
-              </div>
-            )}
-            <input type="text" placeholder="Text Field" />
-          </label>
-        );
-      case 'textarea':
-        return (
-          <label key={index}>
-            {isEditMode ? (
-              <div>
-                <input type="text" value={fieldLabel} onChange={handleLabelChange} />
-                <button onClick={() => handleEditModeToggle(index)}>Save</button>
-              </div>
-            ) : (
-              <div>
-                <label>{fieldLabel}</label>
-                <button onClick={() => handleEditModeToggle(index)} className="top-[-15px] left-3 relative">
-                  <img src='/formfield/edit.svg' alt="edit" />
-                </button>
-              </div>
-            )}
-            <textarea placeholder="Text Area" />
-          </label>
-        )
-      case 'checkbox':
-        return (
-          <label key={index}>
-            <input type="checkbox" />
-            Checkbox
-          </label>
-        );
-      case 'radio':
-        return (
+    return (
+      <div key={index}>
+        {editMode[index] ? (
           <div>
-            <input type="radio" name="radiobutton" key={index} placeholder="Text Area" />
-            <input type="radio" name="radiobutton" key={index} placeholder="Text Area" />
+            <input
+              type="text"
+              value={fieldLabels[index] || ''}
+              onChange={(event) => handleLabelChange(event, index)}
+            />
+            <button onClick={() => handleEditModeToggle(index)}>Save</button>
           </div>
-        );
-      case 'select':
-        return (
-          <div key={index}>
-            <select>
-              <option value="">...</option>
-              <option value="">Abc</option>
-              <option value="">Abc</option>
-              <option value="">Abc</option>
-              <option value="">Abc</option>
-            </select>
-          </div>
-        );
-      case 'date':
-        return <input type="date" key={index} placeholder="Date" />;
-      case 'file':
-        return <input key={index} type="file" />;
-      case 'accept':
-        return (
+        ) : (
           <div>
-            <label key={index}>
-              <input type="checkbox" /> Yes I accept terms and conditions
-            </label>
+            <label>{fieldLabels[index] || field.type}</label>
+            <button onClick={() => handleEditModeToggle(index)}>Edit</button>
           </div>
-        );
-      // Add more cases for other field types
-      default:
-        return null;
-    }
+        )}
+        <Field
+          type={field.type}
+          name={fieldName}
+          // Add appropriate input props like placeholder, options, etc.
+        />
+        <ErrorMessage name={fieldName} component="div" />
+      </div>
+    )
+
+    // switch (fieldType) {
+    //   case 'text':
+    //     return (
+    //       <label key={index}>
+    //         {isEditMode ? (
+    //           <div>
+    //             <input type="text" value={fieldLabel} onChange={handleLabelChange} />
+    //             <button onClick={() => handleEditModeToggle(index)}>Save</button>
+    //           </div>
+    //         ) : (
+    //           <div>
+    //             <label>{fieldLabel}</label>
+    //             <button onClick={() => handleEditModeToggle(index)} className="top-[-15px] left-3 relative">
+    //               <img src='/formfield/edit.svg' alt="edit" />
+    //             </button>
+    //           </div>
+    //         )}
+    //         <Field type="text" name={fieldName} placeholder="Text Field" />
+    //       </label>
+    //     );
+    //   case 'textarea':
+    //     return (
+    //       <label key={index}>
+    //         {isEditMode ? (
+    //           <div>
+    //             <input type="text" value={fieldLabel} onChange={handleLabelChange} />
+    //             <button onClick={() => handleEditModeToggle(index)}>Save</button>
+    //           </div>
+    //         ) : (
+    //           <div>
+    //             <label>{fieldLabel}</label>
+    //             <button onClick={() => handleEditModeToggle(index)} className="top-[-15px] left-3 relative">
+    //               <img src='/formfield/edit.svg' alt="edit" />
+    //             </button>
+    //           </div>
+    //         )}
+    //         <textarea name={fieldName} placeholder="Text Area" />
+    //       </label>
+    //     );
+    //   case 'checkbox':
+    //     return (
+    //       <label key={index}>
+    //         {isEditMode ? (
+    //           <div>
+    //             <input type="text" value={fieldLabel} onChange={handleLabelChange} />
+    //             <button onClick={() => handleEditModeToggle(index)}>Save</button>
+    //           </div>
+    //         ) : (
+    //           <div>
+    //             <label>{fieldLabel}</label>
+    //             <button onClick={() => handleEditModeToggle(index)} className="top-[-15px] left-3 relative">
+    //               <img src='/formfield/edit.svg' alt="edit" />
+    //             </button>
+    //           </div>
+    //         )}
+    //         <input type="checkbox" name={fieldName} />
+    //       </label>
+    //     );
+    //   case 'radio':
+    //     return (
+    //       <label key={index}>
+    //         {isEditMode ? (
+    //           <div>
+    //             <input type="text" value={fieldLabel} onChange={handleLabelChange} />
+    //             <button onClick={() => handleEditModeToggle(index)}>Save</button>
+    //           </div>
+    //         ) : (
+    //           <div>
+    //             <label>{fieldLabel}</label>
+    //             <button onClick={() => handleEditModeToggle(index)} className="top-[-15px] left-3 relative">
+    //               <img src='/formfield/edit.svg' alt="edit" />
+    //             </button>
+    //           </div>
+    //         )}
+    //         <input type="radio" name={fieldName} key={index} placeholder="Text Area" />
+    //         <input type="radio" name={fieldName} key={index} placeholder="Text Area" />
+    //       </label>
+    //     );
+    //   case 'select':
+    //     return (
+    //       <label key={index}>
+    //         {isEditMode ? (
+    //           <div>
+    //             <input type="text" value={fieldLabel} onChange={handleLabelChange} />
+    //             <button onClick={() => handleEditModeToggle(index)}>Save</button>
+    //           </div>
+    //         ) : (
+    //           <div>
+    //             <label>{fieldLabel}</label>
+    //             <button onClick={() => handleEditModeToggle(index)} className="top-[-15px] left-3 relative">
+    //               <img src='/formfield/edit.svg' alt="edit" />
+    //             </button>
+    //           </div>
+    //         )}
+    //         <select name={fieldName}>
+    //           <option value="">...</option>
+    //           <option value="">Abc</option>
+    //           <option value="">Abc</option>
+    //           <option value="">Abc</option>
+    //           <option value="">Abc</option>
+    //         </select>
+    //       </label>
+    //     );
+    //   case 'date':
+    //     return (
+    //       <label key={index}>
+    //         {isEditMode ? (
+    //           <div>
+    //             <input type="text" value={fieldLabel} onChange={handleLabelChange} />
+    //             <button onClick={() => handleEditModeToggle(index)}>Save</button>
+    //           </div>
+    //         ) : (
+    //           <div>
+    //             <label>{fieldLabel}</label>
+    //             <button onClick={() => handleEditModeToggle(index)} className="top-[-15px] left-3 relative">
+    //               <img src='/formfield/edit.svg' alt="edit" />
+    //             </button>
+    //           </div>
+    //         )}
+    //         <input type="date" name={fieldName} placeholder="Date" />
+    //       </label>
+    //     );
+    //   case 'file':
+    //     return (
+    //       <label key={index}>
+    //         {isEditMode ? (
+    //           <div>
+    //             <input type="text" value={fieldLabel} onChange={handleLabelChange} />
+    //             <button onClick={() => handleEditModeToggle(index)}>Save</button>
+    //           </div>
+    //         ) : (
+    //           <div>
+    //             <label>{fieldLabel}</label>
+    //             <button onClick={() => handleEditModeToggle(index)} className="top-[-15px] left-3 relative">
+    //               <img src='/formfield/edit.svg' alt="edit" />
+    //             </button>
+    //           </div>
+    //         )}
+    //         <input type="file" name={fieldName} />
+    //       </label>
+    //     );
+    //   case 'accept':
+    //     return (
+    //       <label key={index}>
+    //         {isEditMode ? (
+    //           <div>
+    //             <input type="text" value={fieldLabel} onChange={handleLabelChange} />
+    //             <button onClick={() => handleEditModeToggle(index)}>Save</button>
+    //           </div>
+    //         ) : (
+    //           <div>
+    //             <label>{fieldLabel}</label>
+    //             <button onClick={() => handleEditModeToggle(index)} className="top-[-15px] left-3 relative">
+    //               <img src='/formfield/edit.svg' alt="edit" />
+    //             </button>
+    //           </div>
+    //         )}
+    //         <input type="checkbox" name={fieldName} /> Yes, I accept terms and conditions
+    //       </label>
+    //     );
+    //   // Add more cases for other field types
+    //   default:
+    //     return null;
+    // }
   };
+
+  // const handleSubmit = (values, { setSubmitting }) => {
+  //   console.log(values);
+  //   setSubmitting(false);
+  // };
+
+  const handleSubmit = (values) => {
+    console.log(values)
+  }
 
 
   let fieldButtonStyle = "w-[48%] justify-left p-8"
@@ -191,18 +309,23 @@ const CreateFormModal = ({ onClose }) => {
           <div className='w-[59%] bg-[#F0F0F0] p-5 rounded-[8px]'>
             {/* Form Content Area */}
             <div className="bg-white h-[63vh] ixb-flex-both overflow-y-auto"><div>
-              <Formik
-                initialValues={{}} // Initialize your form field values here
-                validationSchema={validationSchema}
-                onSubmit={(values, { setSubmitting }) => {
-                  console.log(values);
-                  setSubmitting(false);
+            <Formik
+                initialValues={{
+                  text: '',
+                  textarea: '',
+                  checkbox: false,
+                  radio: '',
+                  select: '',
+                  date: '',
+                  file: null,
+                  accept: false,
                 }}
+                validationSchema={validationSchema}
+                onSubmit={handleSubmit}
               >
-                {({ isSubmitting }) => (
                   <Form>
                     <div className="flex flex-col gap-8">
-                      {formFields.map((field, index) => (
+                    {formFields.map((field, index) => (
                         <div className="flex item gap-3" key={index}>
                           <div>{renderFormField(
                             field.type,
@@ -221,8 +344,8 @@ const CreateFormModal = ({ onClose }) => {
                         </div>
                       ))}
                     </div>
+                    <button type="submit">Save</button>
                   </Form>
-                )}
               </Formik>
             </div>
             </div>
