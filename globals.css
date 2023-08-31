@@ -33,3 +33,6 @@
   display: flex;
   flex-direction: column;
 }
+.ixb__form__outer div {
+  width: 100%;
+}
