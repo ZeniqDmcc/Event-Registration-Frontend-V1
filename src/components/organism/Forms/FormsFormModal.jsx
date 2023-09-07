@@ -1,12 +1,10 @@
+import Input from '@/components/atoms/Input';
 import { XIcon } from '@heroicons/react/solid';
-import { Formik, Form, Field, ErrorMessage } from 'formik';
-import { useState } from 'react';
-import * as Yup from 'yup';
+import { Field, Form, Formik, useFormik } from 'formik';
+import { useState, useEffect } from 'react';
 import Button from '../../atoms/Button';
 import Heading from '../../atoms/Heading';
 import FieldButton from '../../molecules/FieldButton';
-import Footer from '../../template/Footer';
-import Input from '@/components/atoms/Input';
 
 
 const CreateFormModal = ({ onClose }) => {
@@ -14,12 +12,47 @@ const CreateFormModal = ({ onClose }) => {
   const [editMode, setEditMode] = useState({});
   const [fieldLabels, setFieldLabels] = useState({});
   const [selectFieldOptions, setSelectFieldOptions] = useState({});
+  const [selectedOption, setSelectedOption] = useState();
+  const [selectedOptions, setSelectedOptions] = useState({});
 
-  const handleSubmit = (values) => {
-    console.log(values)
-  }
 
   let initialValues = {}
+
+  const handleSubmit = (values) => {
+    const updateValues = { ...values, selectedOptions }
+    console.log(updateValues);
+  }
+
+  const formik = useFormik({
+    initialValues,
+    onSubmit: handleSubmit,
+  });
+
+  const handleOptionSelect = (fieldName, selectedOption) => {
+    formik.setFieldValue(fieldName, selectedOption);
+  };
+
+  const StarRating = ({ value, onChange }) => {
+    const stars = [1, 2, 3, 4, 5];
+    return (
+      <div>
+        {stars.map((star) => (
+          <span
+            key={star}
+            className={`cursor-pointer w-[40px] ${
+              star <= value ? "text-yellow-500" : "text-gray-400"
+            }`}
+            onClick={() => {
+              console.log("Star clicked:", star); // Add this line
+              onChange(star);
+            }}
+          >
+            &#9733;
+          </span>
+        ))}
+      </div>
+    );
+  };
 
   const addFormField = (fieldType) => {
     setFormFields([...formFields, { type: fieldType }]);
@@ -27,6 +60,11 @@ const CreateFormModal = ({ onClose }) => {
       ...prevEditModes,
       [formFields.length]: false,
     }));
+
+    if (fieldType === 'rating') {
+      const fieldName = `rating-${formFields.length}`;
+      initialValues[fieldName] = 0; 
+    }
   };
 
   const removeFormField = (index) => {
@@ -62,12 +100,12 @@ const CreateFormModal = ({ onClose }) => {
         console.log(`Field type "${fieldType}" is not required.`);
       }
     });
-  };
+  }
 
   const handleLabelChange = (event, index) => {
-    const newFieldLabels = { ...fieldLabels };
-    newFieldLabels[index] = event.target.value;
-    setFieldLabels(newFieldLabels);
+    const newFieldLabels = { ...fieldLabels }
+    newFieldLabels[index] = event.target.value
+    setFieldLabels(newFieldLabels)
   };
 
   const handleEditModeToggle = (index) => {
@@ -77,30 +115,146 @@ const CreateFormModal = ({ onClose }) => {
     }));
   };
 
-  const handleOptionChange = (event, fieldName, optionIndex) => {
+  const handleOptionChange = (fieldName, optionIndex, optionValue) => {
     const newOptions = { ...selectFieldOptions };
-    newOptions[fieldName][optionIndex] = event.target.value;
+    newOptions[fieldName][optionIndex] = optionValue;
     setSelectFieldOptions(newOptions);
   };
 
-  const handleAddOption = (fieldName) => {
+  const handleAddOption = (fieldName, optionValue) => {
     const newOptions = { ...selectFieldOptions };
     newOptions[fieldName] = newOptions[fieldName] || [];
-    newOptions[fieldName].push('');
+    newOptions[fieldName].push(optionValue);
     setSelectFieldOptions(newOptions);
   };
 
   const handleRemoveOption = (fieldName, optionIndex) => {
-    const newOptions = { ...selectFieldOptions };
-    newOptions[fieldName].splice(optionIndex, 1);
-    setSelectFieldOptions(newOptions);
+    setSelectFieldOptions((prevOptions) => {
+      const newOptions = { ...prevOptions };
+
+      if (newOptions[fieldName]) {
+        newOptions[fieldName] = newOptions[fieldName].filter((_, index) => index !== optionIndex);
+      }
+
+      return newOptions;
+    });
+  };
+
+  const CustomDropdown = ({
+    fieldName,
+    setFieldValue,
+    options,
+    selectedOption,
+    onSelect,
+    onAddOption,
+    onRemoveOption,
+    onOptionChange,
+    onOptionSelect,
+  }) => {
+    const [showOptions, setShowOptions] = useState(false);
+    const [newOptionValue, setNewOptionValue] = useState("");
+
+    const handleInputChange = (event) => {
+      setNewOptionValue(event.target.value);
+    };
+
+    const handleAddButtonClick = () => {
+      if (newOptionValue.trim() !== "") {
+        onAddOption(fieldName, newOptionValue);
+        setNewOptionValue("");
+      }
+    };
+
+    const handleOptionClick = (option) => {
+      onOptionChange(fieldName, option);
+      onSelect(option);
+      setShowOptions(false);
+      onOptionSelect(option);
+    };
+
+    return (
+      <div className="relative">
+        <div
+          className={`w-full bg-white border rounded-t-md cursor-pointer flex items-center justify-between px-4 py-2 focus:outline-none focus:ring focus:border-blue-300 ${showOptions ? "rounded-t-md" : "rounded-md"
+            }`}
+          onClick={() => setShowOptions(!showOptions)}
+        >
+          {selectedOption || "Select an option..."}
+          <svg
+            className="w-5 h-5 ml-2 text-gray-400 transform transition-transform"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+            style={{
+              transform: showOptions ? "rotate(180deg)" : "rotate(0deg)",
+            }}
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M19 9l-7 7-7-7"
+            ></path>
+          </svg>
+        </div>
+        {showOptions && (
+          <div className="options-list border flex flex-col gap-1 py-2 px-1 rounded-b-md mt-2">
+            {options.map((option, optionIndex) => (
+              <div
+                className={`flex items-center justify-between option px-2 py-2 hover:bg-[#f0f0f0] rounded ${selectedOption === option ? "bg-[#f0f0f0]" : ""
+                  }`}
+                key={optionIndex}
+                onClick={() => handleOptionClick(option)}
+              >
+                <span key={optionIndex} className="option-label cursor-pointer">
+                  {option}
+                </span>
+                <button
+                  className="remove-button"
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    onRemoveOption(fieldName, optionIndex);
+                  }}
+                >
+                  <img width="20" src="/formfield/minus.svg" alt="Delete" />
+                </button>
+              </div>
+            ))}
+            <div className="add-option flex border rounded justify-between p-2">
+              <input
+                className="outline-none"
+                type="text"
+                placeholder="New option..."
+                value={newOptionValue}
+                onClick={(event) => event.stopPropagation()} // Prevent click event from propagating
+                onChange={handleInputChange}
+              />
+              <button
+                onClick={(event) => {
+                  event.stopPropagation(); // Prevent the dropdown from closing
+                  handleAddButtonClick();
+                }}
+              >
+                <img
+                  width="20"
+                  src="/formfield/addfield.svg"
+                  alt="Add Option"
+                />
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    );
   };
 
   // Render Fields
   const renderFormField = (field, index) => {
     const fieldName = `${field.type}-${index}`;
-    const fieldLabel = fieldLabels[index] || '';
+    const fieldLabel = fieldLabels[index] || 'Label';
     const options = selectFieldOptions[fieldName] || [];
+    const initialRating = formik.values[fieldName] || 0
 
     return (
       <div key={index} className='flex flex-col gap-2'>
@@ -134,82 +288,38 @@ const CreateFormModal = ({ onClose }) => {
             </>
           )}
 
-          {/* Select */}
-          {/* {field.type === 'select' && (
-            <>
-              <Field as="select" name={fieldName}>
-                <option value="">...</option>
-                {options.map((option, optionIndex) => (
-                  <option key={optionIndex} value={option}>
-                    {option}
-                  </option>
-                ))}
-                {editMode[index] && (
-                  <optgroup label="Edit Options">
-                    {options.map((option, optionIndex) => (
-                      <option key={optionIndex} value={option}>
-                        {option}
-                      </option>
-                    ))}
-                    <option value="__add_option__">Add Option</option>
-                  </optgroup>
-                )}
-              </Field>
-
-              {editMode[index] && (
-                <div>
-                  <label>Edit Options:</label>
-                  {options.map((option, optionIndex) => (
-                    <div key={optionIndex}>
-                      <input
-                        type="text"
-                        value={option}
-                        onChange={(event) => handleOptionChange(event, fieldName, optionIndex)}
-                      />
-                      <button onClick={() => handleRemoveOption(fieldName, optionIndex)}>Remove</button>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </>
-          )} */}
-          
-          {field.type === 'select' && (
-            <>
-              <div>
-  <Field as="select" name={fieldName}>
-    <option value="">...</option>
-    {options.map((option, optionIndex) => (
-      <option key={optionIndex} value={option}>
-        {option}
-      </option>
-    ))}
-  </Field>
-  {options.map((option, optionIndex) => (
-    <div key={optionIndex}>
-      <span className='text-red-800'>{option}</span>
-      <button className='bg-red-700' onClick={() => handleRemoveOption(fieldName, optionIndex)}>Remove</button>
-    </div>
-  ))}
-</div>
-
-              <div>
-                {options.map((option, optionIndex) => (
-                  <div key={optionIndex}>
-                    <input
-                      type="text"
-                      value={option}
-                      onChange={(event) => handleOptionChange(event, fieldName, optionIndex)}
-                    />
-                    <button onClick={() => handleRemoveOption(fieldName, optionIndex)}>Remove</button>
-                  </div>
-                ))}
-                <button onClick={() => handleAddOption(fieldName)}>Add Option</button>
-              </div>
-            </>
+          {field.type === "select" && (
+            <div>
+              <CustomDropdown
+                fieldName={fieldName}
+                options={selectFieldOptions[fieldName] || []}
+                selectedOption={selectedOptions[fieldName]} // Pass the selected option
+                onSelect={(selectedOption) => {
+                  console.log("Selected:", selectedOption);
+                  setSelectedOptions((prevSelectedOptions) => ({
+                    ...prevSelectedOptions,
+                    [fieldName]: selectedOption,
+                  }));
+                }}
+                onAddOption={(fieldName, optionValue) =>
+                  handleAddOption(fieldName, optionValue)
+                }
+                onRemoveOption={(fieldName, optionIndex) =>
+                  handleRemoveOption(fieldName, optionIndex)
+                }
+                onOptionChange={(fieldName, optionIndex, optionValue) =>
+                  handleOptionChange(fieldName, optionIndex, optionValue)
+                }
+                onOptionSelect={(selectedOption) => {
+                  setSelectedOptions((prevSelectedOptions) => ({
+                    ...prevSelectedOptions,
+                    [fieldName]: selectedOption,
+                  }));
+                  // setSelectedOption(selectedOption); // Remove this line
+                }}
+              />
+            </div>
           )}
-
-          {/* Select End */}
 
           {field.type === 'date' && (
             <Field type="date" name={fieldName} />
@@ -217,12 +327,19 @@ const CreateFormModal = ({ onClose }) => {
           {field.type === 'file' && (
             <Field type="file" name={fieldName} />
           )}
+          {field.type === 'rating' && (
+            <StarRating
+              value={formik.values[`rating-${index}`] || 0} // Use the correct field name
+              onChange={(rating) => {
+                formik.setFieldValue(`rating-${index}`, rating); // Set the correct field name
+              }}
+            />
+          )}
           {field.type === 'accept' && (
             <>
               <Field type="checkbox" name={fieldName} /> Yes, I accept terms and conditions
             </>
           )}
-          {/* Add cases for other field types */}
         </>
       </div>
     );
@@ -270,13 +387,13 @@ const CreateFormModal = ({ onClose }) => {
                         </div>
                       ))}
                     </div>
+
                     <button type="submit">Save</button>
                   </div>
                 </Form>
               </Formik>
             </div>
             </div>
-            <Footer />
           </div>
           {/* Form Fields Area */}
           <div className='w-[39%] border p-5 rounded-[8px] border-[#A8A8A8]'>
@@ -291,7 +408,7 @@ const CreateFormModal = ({ onClose }) => {
                   <FieldButton customStyle={fieldButtonStyle} icon="/FormButtonsIcons/CaretCircleDown.svg" alt="Dropdown" onClick={() => addFormField('select')}>Dropdown</FieldButton>
                   <FieldButton customStyle={fieldButtonStyle} icon="/FormButtonsIcons/Calendar.svg" alt="Date" onClick={() => addFormField('date')}>Date</FieldButton>
                   <FieldButton customStyle={fieldButtonStyle} icon="/FormButtonsIcons/Paperclip.svg" alt="File Upload" onClick={() => addFormField('file')}>File Upload</FieldButton>
-                  <FieldButton customStyle={fieldButtonStyle} icon="/FormButtonsIcons/Star.svg" alt="Rating" onClick={() => addFormField('text')}>Rating</FieldButton>
+                  <FieldButton customStyle={fieldButtonStyle} icon="/FormButtonsIcons/Star.svg" alt="Rating" onClick={() => addFormField('rating')}>Rating</FieldButton>
                   <FieldButton customStyle={fieldButtonStyle} icon="/FormButtonsIcons/ThumbsUp.svg" alt="Accept T&C" onClick={() => addFormField('accept')}>Accept T&C</FieldButton>
                 </div>
                 <Button customButtonStyle="w-full h-[62px]" variant="primary">Save</Button>
