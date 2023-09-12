@@ -34,7 +34,7 @@ function LoginPage() {
                 setLoginError('An error occurred. Please try again later.');
             }
         }
-    };
+    }
 
     return (
         <div className='ixb-flex-align h-[100vh]'>

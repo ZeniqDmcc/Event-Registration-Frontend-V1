@@ -1,10 +1,11 @@
 import Input from '@/components/atoms/Input';
 import { XIcon } from '@heroicons/react/solid';
 import { Field, Form, Formik, useFormik } from 'formik';
-import { useState, useEffect } from 'react';
+import { use, useState } from 'react';
 import Button from '../../atoms/Button';
 import Heading from '../../atoms/Heading';
 import FieldButton from '../../molecules/FieldButton';
+import axios from 'axios';
 
 
 const CreateFormModal = ({ onClose }) => {
@@ -12,16 +13,73 @@ const CreateFormModal = ({ onClose }) => {
   const [editMode, setEditMode] = useState({});
   const [fieldLabels, setFieldLabels] = useState({});
   const [selectFieldOptions, setSelectFieldOptions] = useState({});
-  const [selectedOption, setSelectedOption] = useState();
   const [selectedOptions, setSelectedOptions] = useState({});
+  const [optionsList, setOptionsList] = useState([])
 
+  let initialValues = {}  
 
-  let initialValues = {}
+  console.log("Options List:", optionsList)
 
-  const handleSubmit = (values) => {
-    const updateValues = { ...values, selectedOptions }
-    console.log(updateValues);
-  }
+  const handleSubmit = async (values) => {
+
+    // const formData = {
+    //   formFields: formFields.map((field, index) => ({
+    //     fieldLabel: fieldLabels[`field-${index}`] || 'Label',
+    //     fieldType: field.type,
+    //     // options: optionsList || null
+    //   })),
+    // };
+
+    // const formData = {
+    //   formFields: formFields.map((field, index) => ({
+    //     fieldLabel: fieldLabels[`field-${index}`] || 'Label',
+    //     fieldType: field.type,
+    //     options: field.type === 'select' ? optionsList || [] : [], // Include options for select fields, otherwise use an empty array
+    //   })),
+    // };
+
+    const formData = {
+      formFields: formFields.map((field, index) => {
+        const formDataField = {
+          fieldLabel: fieldLabels[`field-${index}`] || 'Label',
+          fieldType: field.type,
+        };
+    
+        if (field.type === 'select') {
+          formDataField.options = optionsList || []; // Include options for select fields
+        }
+    
+        return formDataField;
+      }),
+    };
+    
+
+    console.log(formData)
+
+    const token = localStorage.getItem('access_token');
+
+    const headers = {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    };
+
+    try {
+      const response = await axios.post('http://localhost:9003/admin/form/createForm',
+        formData,
+        { headers }
+      );
+
+      if (!response.ok) {
+        console.error('Network response not OK:', response.status, response.statusText);
+        throw new Error('Network response was not ok');
+      }
+
+      const data = await response.json();
+      console.log('Form submission successful:', data);
+    } catch (error) {
+      console.error('Error submitting form:', error);
+    }
+  };
 
   const formik = useFormik({
     initialValues,
@@ -32,19 +90,22 @@ const CreateFormModal = ({ onClose }) => {
     formik.setFieldValue(fieldName, selectedOption);
   };
 
-  const StarRating = ({ value, onChange }) => {
+  const StarRating = ({ fieldName, value, setFieldValue }) => {
     const stars = [1, 2, 3, 4, 5];
+
     return (
       <div>
         {stars.map((star) => (
           <span
             key={star}
-            className={`cursor-pointer w-[40px] ${
-              star <= value ? "text-yellow-500" : "text-gray-400"
-            }`}
+            className={`cursor-pointer w-[40px] ${star <= value ? "text-yellow-500" : "text-gray-400"
+              }`}
             onClick={() => {
-              console.log("Star clicked:", star); // Add this line
-              onChange(star);
+              console.log("Star clicked:", star);
+              console.log("fieldName:", fieldName);
+
+              // Update the field value using formik.setFieldValue
+              setFieldValue(fieldName, star);
             }}
           >
             &#9733;
@@ -63,7 +124,7 @@ const CreateFormModal = ({ onClose }) => {
 
     if (fieldType === 'rating') {
       const fieldName = `rating-${formFields.length}`;
-      initialValues[fieldName] = 0; 
+      initialValues[fieldName] = 0;
     }
   };
 
@@ -122,6 +183,9 @@ const CreateFormModal = ({ onClose }) => {
   };
 
   const handleAddOption = (fieldName, optionValue) => {
+
+    setOptionsList((prevOptionsList) => [...prevOptionsList, optionValue]);
+
     const newOptions = { ...selectFieldOptions };
     newOptions[fieldName] = newOptions[fieldName] || [];
     newOptions[fieldName].push(optionValue);
@@ -129,6 +193,11 @@ const CreateFormModal = ({ onClose }) => {
   };
 
   const handleRemoveOption = (fieldName, optionIndex) => {
+
+    setOptionsList((prevOptionsList) => 
+      prevOptionsList.filter((_, index) => index !== optionIndex )
+    )
+
     setSelectFieldOptions((prevOptions) => {
       const newOptions = { ...prevOptions };
 
@@ -227,12 +296,12 @@ const CreateFormModal = ({ onClose }) => {
                 type="text"
                 placeholder="New option..."
                 value={newOptionValue}
-                onClick={(event) => event.stopPropagation()} // Prevent click event from propagating
+                onClick={(event) => event.stopPropagation()}
                 onChange={handleInputChange}
               />
               <button
                 onClick={(event) => {
-                  event.stopPropagation(); // Prevent the dropdown from closing
+                  event.stopPropagation();
                   handleAddButtonClick();
                 }}
               >
@@ -251,23 +320,31 @@ const CreateFormModal = ({ onClose }) => {
 
   // Render Fields
   const renderFormField = (field, index) => {
-    const fieldName = `${field.type}-${index}`;
-    const fieldLabel = fieldLabels[index] || 'Label';
+    const fieldIdentifier = `field-${index}`;
+    const fieldName = `${field.type}-${fieldIdentifier}`;
+    const fieldLabel = fieldLabels[fieldIdentifier] || 'Label';
     const options = selectFieldOptions[fieldName] || [];
-    const initialRating = formik.values[fieldName] || 0
+    const initialRating = formik.values[fieldName] || 0;
 
     return (
       <div key={index} className='flex flex-col gap-2'>
         {editMode[index] ? (
           <div>
-            <input type="text" value={fieldLabel} onChange={(event) => handleLabelChange(event, index)} />
+            <input
+              type="text"
+              value={fieldLabel}
+              onChange={(event) => handleLabelChange(event, fieldIdentifier)}
+            />
             <button onClick={() => handleEditModeToggle(index)}>Save</button>
           </div>
         ) : (
           <div>
             <label>{fieldLabel}</label>
-            <label onClick={() => handleEditModeToggle(index)} className="top-[-15px] cursor-pointer inline-block left-3 relative">
-              <img src='/formfield/edit.svg' alt="edit" />
+            <label
+              onClick={() => handleEditModeToggle(index)}
+              className="top-[-15px] cursor-pointer inline-block left-3 relative"
+            >
+              <img src="/formfield/edit.svg" alt="edit" />
             </label>
           </div>
         )}
@@ -293,9 +370,8 @@ const CreateFormModal = ({ onClose }) => {
               <CustomDropdown
                 fieldName={fieldName}
                 options={selectFieldOptions[fieldName] || []}
-                selectedOption={selectedOptions[fieldName]} // Pass the selected option
+                selectedOption={selectedOptions[fieldName]}
                 onSelect={(selectedOption) => {
-                  console.log("Selected:", selectedOption);
                   setSelectedOptions((prevSelectedOptions) => ({
                     ...prevSelectedOptions,
                     [fieldName]: selectedOption,
@@ -315,7 +391,7 @@ const CreateFormModal = ({ onClose }) => {
                     ...prevSelectedOptions,
                     [fieldName]: selectedOption,
                   }));
-                  // setSelectedOption(selectedOption); // Remove this line
+
                 }}
               />
             </div>
@@ -327,14 +403,13 @@ const CreateFormModal = ({ onClose }) => {
           {field.type === 'file' && (
             <Field type="file" name={fieldName} />
           )}
-          {field.type === 'rating' && (
+          {/* {field.type === 'rating' && (
             <StarRating
-              value={formik.values[`rating-${index}`] || 0} // Use the correct field name
-              onChange={(rating) => {
-                formik.setFieldValue(`rating-${index}`, rating); // Set the correct field name
-              }}
+              fieldName={fieldName} // Pass the fieldName
+              value={formik.values[fieldName] || 0}
+              setFieldValue={formik.setFieldValue} // Pass formik.setFieldValue
             />
-          )}
+          )} */}
           {field.type === 'accept' && (
             <>
               <Field type="checkbox" name={fieldName} /> Yes, I accept terms and conditions
@@ -408,7 +483,7 @@ const CreateFormModal = ({ onClose }) => {
                   <FieldButton customStyle={fieldButtonStyle} icon="/FormButtonsIcons/CaretCircleDown.svg" alt="Dropdown" onClick={() => addFormField('select')}>Dropdown</FieldButton>
                   <FieldButton customStyle={fieldButtonStyle} icon="/FormButtonsIcons/Calendar.svg" alt="Date" onClick={() => addFormField('date')}>Date</FieldButton>
                   <FieldButton customStyle={fieldButtonStyle} icon="/FormButtonsIcons/Paperclip.svg" alt="File Upload" onClick={() => addFormField('file')}>File Upload</FieldButton>
-                  <FieldButton customStyle={fieldButtonStyle} icon="/FormButtonsIcons/Star.svg" alt="Rating" onClick={() => addFormField('rating')}>Rating</FieldButton>
+                  {/* <FieldButton customStyle={fieldButtonStyle} icon="/FormButtonsIcons/Star.svg" alt="Rating" onClick={() => addFormField('rating')}>Rating</FieldButton> */}
                   <FieldButton customStyle={fieldButtonStyle} icon="/FormButtonsIcons/ThumbsUp.svg" alt="Accept T&C" onClick={() => addFormField('accept')}>Accept T&C</FieldButton>
                 </div>
                 <Button customButtonStyle="w-full h-[62px]" variant="primary">Save</Button>
