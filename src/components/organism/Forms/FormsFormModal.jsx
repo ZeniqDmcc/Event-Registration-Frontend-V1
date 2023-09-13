@@ -7,61 +7,44 @@ import Heading from '../../atoms/Heading';
 import FieldButton from '../../molecules/FieldButton';
 import axios from 'axios';
 
-
 const CreateFormModal = ({ onClose }) => {
   const [formFields, setFormFields] = useState([]);
   const [editMode, setEditMode] = useState({});
   const [fieldLabels, setFieldLabels] = useState({});
   const [selectFieldOptions, setSelectFieldOptions] = useState({});
   const [selectedOptions, setSelectedOptions] = useState({});
-  const [optionsList, setOptionsList] = useState([])
+  const [optionsList, setOptionsList] = useState('')
 
-  let initialValues = {}  
+  let initialValues = {}
 
-  console.log("Options List:", optionsList)
+  console.log("optionsList", optionsList)
 
   const handleSubmit = async (values) => {
-
-    // const formData = {
-    //   formFields: formFields.map((field, index) => ({
-    //     fieldLabel: fieldLabels[`field-${index}`] || 'Label',
-    //     fieldType: field.type,
-    //     // options: optionsList || null
-    //   })),
-    // };
-
-    // const formData = {
-    //   formFields: formFields.map((field, index) => ({
-    //     fieldLabel: fieldLabels[`field-${index}`] || 'Label',
-    //     fieldType: field.type,
-    //     options: field.type === 'select' ? optionsList || [] : [], // Include options for select fields, otherwise use an empty array
-    //   })),
-    // };
 
     const formData = {
       formFields: formFields.map((field, index) => {
         const formDataField = {
           fieldLabel: fieldLabels[`field-${index}`] || 'Label',
           fieldType: field.type,
+          options: optionsList || []
         };
-    
-        if (field.type === 'select') {
-          formDataField.options = optionsList || []; // Include options for select fields
-        }
-    
+
+        // if (field.type === 'select') {
+        //   // formDataField.options = optionsList || [];
+        // }
+
         return formDataField;
       }),
     };
-    
 
-    console.log(formData)
+    console.log("Data:", formData)
 
-    const token = localStorage.getItem('access_token');
+    const token = localStorage.getItem('access_token')
 
     const headers = {
       Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json',
-    };
+    }
 
     try {
       const response = await axios.post('http://localhost:9003/admin/form/createForm',
@@ -70,14 +53,14 @@ const CreateFormModal = ({ onClose }) => {
       );
 
       if (!response.ok) {
-        console.error('Network response not OK:', response.status, response.statusText);
-        throw new Error('Network response was not ok');
+        console.error('Network response not OK:', response.status, response.statusText)
+        throw new Error('Network response was not ok')
       }
 
-      const data = await response.json();
-      console.log('Form submission successful:', data);
+      const data = await response.json()
+      console.log('Form submission successful:', data)
     } catch (error) {
-      console.error('Error submitting form:', error);
+      console.error('Error submitting form:', error)
     }
   };
 
@@ -183,9 +166,11 @@ const CreateFormModal = ({ onClose }) => {
   };
 
   const handleAddOption = (fieldName, optionValue) => {
-
     setOptionsList((prevOptionsList) => [...prevOptionsList, optionValue]);
-
+    // setOptionsList((prevOptionsList) => ({
+    //   ...prevOptionsList,
+    //   [fieldName]: [...(prevOptionsList[fieldName] || []), optionValue],
+    // }))
     const newOptions = { ...selectFieldOptions };
     newOptions[fieldName] = newOptions[fieldName] || [];
     newOptions[fieldName].push(optionValue);
@@ -194,8 +179,8 @@ const CreateFormModal = ({ onClose }) => {
 
   const handleRemoveOption = (fieldName, optionIndex) => {
 
-    setOptionsList((prevOptionsList) => 
-      prevOptionsList.filter((_, index) => index !== optionIndex )
+    setOptionsList((prevOptionsList) =>
+      prevOptionsList.filter((_, index) => index !== optionIndex)
     )
 
     setSelectFieldOptions((prevOptions) => {
@@ -211,7 +196,6 @@ const CreateFormModal = ({ onClose }) => {
 
   const CustomDropdown = ({
     fieldName,
-    setFieldValue,
     options,
     selectedOption,
     onSelect,
@@ -222,6 +206,7 @@ const CreateFormModal = ({ onClose }) => {
   }) => {
     const [showOptions, setShowOptions] = useState(false);
     const [newOptionValue, setNewOptionValue] = useState("");
+    const [localSelectedOption, setLocalSelectedOption] = useState(selectedOption);
 
     const handleInputChange = (event) => {
       setNewOptionValue(event.target.value);
@@ -238,6 +223,7 @@ const CreateFormModal = ({ onClose }) => {
       onOptionChange(fieldName, option);
       onSelect(option);
       setShowOptions(false);
+      setLocalSelectedOption(option);
       onOptionSelect(option);
     };
 
@@ -248,7 +234,7 @@ const CreateFormModal = ({ onClose }) => {
             }`}
           onClick={() => setShowOptions(!showOptions)}
         >
-          {selectedOption || "Select an option..."}
+          {localSelectedOption || "Select an option..."}
           <svg
             className="w-5 h-5 ml-2 text-gray-400 transform transition-transform"
             fill="none"
@@ -391,7 +377,6 @@ const CreateFormModal = ({ onClose }) => {
                     ...prevSelectedOptions,
                     [fieldName]: selectedOption,
                   }));
-
                 }}
               />
             </div>
@@ -419,8 +404,6 @@ const CreateFormModal = ({ onClose }) => {
       </div>
     );
   };
-
-
 
   let fieldButtonStyle = "w-[48%] justify-left p-8"
 
