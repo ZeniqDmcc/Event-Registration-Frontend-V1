@@ -15,5 +15,4 @@ const Textarea = ({ ...restProps }) => {
     return <textarea style={textareaStyles} {...restProps} />;
 };
   
-export default Textarea;
-
+export default Textarea

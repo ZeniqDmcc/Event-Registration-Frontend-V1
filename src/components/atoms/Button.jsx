@@ -16,7 +16,7 @@ const Button = ({ children, variant, onClick, href, customButtonStyle, type }) =
         fontWeight: 'bold',
         cursor: 'pointer',
         border: 0,
-      };
+      }
       break;
     case 'secondary':
       buttonStyles = {
@@ -27,7 +27,7 @@ const Button = ({ children, variant, onClick, href, customButtonStyle, type }) =
         fontSize: '16px',
         fontWeight: 'bold',
         cursor: 'pointer',
-      };
+      }
       break;
     case 'hoverButton':
       buttonStyles = {
@@ -47,7 +47,7 @@ const Button = ({ children, variant, onClick, href, customButtonStyle, type }) =
       };
       break;
     default:
-      buttonStyles = {}; 
+      buttonStyles = {}
   }
 
   const [hovered, setHovered] = useState(false);
@@ -62,7 +62,7 @@ const Button = ({ children, variant, onClick, href, customButtonStyle, type }) =
     } else if (onClick) {
       onClick();
     }
-  };
+  }
 
   let ButtonStyle = `${buttonStyles} ${customButtonStyle}`;
 
@@ -81,7 +81,7 @@ const Button = ({ children, variant, onClick, href, customButtonStyle, type }) =
     >
       {children}
     </button>
-  );
-};
+  )
+}
 
-export default Button;
+export default Button
