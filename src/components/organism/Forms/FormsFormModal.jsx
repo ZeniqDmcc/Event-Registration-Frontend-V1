@@ -17,7 +17,7 @@ const CreateFormModal = ({ onClose }) => {
 
   let initialValues = {}
 
-  console.log("optionsList", optionsList)
+  // console.log("optionsList", optionsList)
 
   const handleSubmit = async (values) => {
 
@@ -26,16 +26,16 @@ const CreateFormModal = ({ onClose }) => {
         const formDataField = {
           fieldLabel: fieldLabels[`field-${index}`] || 'Label',
           fieldType: field.type,
-          options: optionsList || []
         };
 
-        // if (field.type === 'select') {
-        //   // formDataField.options = optionsList || [];
-        // }
+        if (field.type === 'select') {
+          formDataField.options = optionsList || [];
+        }
 
         return formDataField;
       }),
     };
+
 
     console.log("Data:", formData)
 
@@ -50,7 +50,7 @@ const CreateFormModal = ({ onClose }) => {
       const response = await axios.post('http://localhost:9003/admin/form/createForm',
         formData,
         { headers }
-      );
+      )
 
       if (!response.ok) {
         console.error('Network response not OK:', response.status, response.statusText)
@@ -62,7 +62,7 @@ const CreateFormModal = ({ onClose }) => {
     } catch (error) {
       console.error('Error submitting form:', error)
     }
-  };
+  }
 
   const formik = useFormik({
     initialValues,
@@ -350,7 +350,6 @@ const CreateFormModal = ({ onClose }) => {
               <Field type="radio" name={fieldName} value="option2" />
             </>
           )}
-
           {field.type === "select" && (
             <div>
               <CustomDropdown
@@ -434,7 +433,7 @@ const CreateFormModal = ({ onClose }) => {
                       {formFields.map((field, index) => (
                         <div className="flex justify-start gap-3" key={index}>
                           <div>
-                            {renderFormField(field, index)}
+                          {renderFormField(field, index, `select-${index}`)}
                           </div>
                           <div className="flex gap-2 justify-end items-end pb-2">
                             <button onClick={handleUnique}><img src='/formfield/unique.svg' /></button>
