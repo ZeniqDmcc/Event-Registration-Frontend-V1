@@ -26,11 +26,14 @@ const CreateFormModal = ({ onClose }) => {
         const formDataField = {
           fieldLabel: fieldLabels[`field-${index}`] || 'Label',
           fieldType: field.type,
+          options: optionsList || []
         };
 
-        if (field.type === 'select') {
-          formDataField.options = optionsList || [];
-        }
+        console.log("optionsList Submit Function",optionsList)
+
+        // if (field.type === 'select') {
+        //   formDataField.options = optionsList || [];
+        // }
 
         return formDataField;
       }),
@@ -166,33 +169,44 @@ const CreateFormModal = ({ onClose }) => {
   };
 
   const handleAddOption = (fieldName, optionValue) => {
-    setOptionsList((prevOptionsList) => [...prevOptionsList, optionValue]);
+    // setOptionsList((prevOptionsList) => [...prevOptionsList, optionValue]);
+    
+    // console.log("prevOptionsList", ...prevOptionsList)
+
     // setOptionsList((prevOptionsList) => ({
-    //   ...prevOptionsList,
-    //   [fieldName]: [...(prevOptionsList[fieldName] || []), optionValue],
-    // }))
+    //   ...(prevOptionsList, optionValue)
+    // }))    
+    
+    setOptionsList((prevOptionsList) => ({
+      ...prevOptionsList,
+      [fieldName]: [...(prevOptionsList[fieldName] || []), optionValue],
+    }))
+
+    console.log("optionValue", optionValue)
+    console.log("setOptionsList", optionsList)
+
     const newOptions = { ...selectFieldOptions };
     newOptions[fieldName] = newOptions[fieldName] || [];
     newOptions[fieldName].push(optionValue);
     setSelectFieldOptions(newOptions);
   };
 
-  const handleRemoveOption = (fieldName, optionIndex) => {
+  // const handleRemoveOption = (fieldName, optionIndex) => {
 
-    setOptionsList((prevOptionsList) =>
-      prevOptionsList.filter((_, index) => index !== optionIndex)
-    )
+  //   setOptionsList((prevOptionsList) =>
+  //     prevOptionsList.filter((_, index) => index !== optionIndex)
+  //   )
 
-    setSelectFieldOptions((prevOptions) => {
-      const newOptions = { ...prevOptions };
+  //   setSelectFieldOptions((prevOptions) => {
+  //     const newOptions = { ...prevOptions };
 
-      if (newOptions[fieldName]) {
-        newOptions[fieldName] = newOptions[fieldName].filter((_, index) => index !== optionIndex);
-      }
+  //     if (newOptions[fieldName]) {
+  //       newOptions[fieldName] = newOptions[fieldName].filter((_, index) => index !== optionIndex);
+  //     }
 
-      return newOptions;
-    });
-  };
+  //     return newOptions;
+  //   });
+  // };
 
   const CustomDropdown = ({
     fieldName,
