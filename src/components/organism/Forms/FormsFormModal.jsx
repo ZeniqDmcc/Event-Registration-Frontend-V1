@@ -13,11 +13,10 @@ const CreateFormModal = ({ onClose }) => {
   const [fieldLabels, setFieldLabels] = useState({});
   const [selectFieldOptions, setSelectFieldOptions] = useState({});
   const [selectedOptions, setSelectedOptions] = useState({});
-  const [optionsList, setOptionsList] = useState('')
+  // const [optionsList, setOptionsList] = useState('')
+  const [optionsList, setOptionsList] = useState([]);
 
   let initialValues = {}
-
-  // console.log("optionsList", optionsList)
 
   const handleSubmit = async (values) => {
 
@@ -25,20 +24,28 @@ const CreateFormModal = ({ onClose }) => {
       formFields: formFields.map((field, index) => {
         const formDataField = {
           fieldLabel: fieldLabels[`field-${index}`] || 'Label',
-          fieldType: field.type,
-          options: optionsList || []
-        };
+          fieldType: field.type
+        }
 
-        console.log("optionsList Submit Function",optionsList)
+        if (field.type === 'select') {
+            formDataField.options = optionsList || [];
+          }
 
-        // if (field.type === 'select') {
-        //   formDataField.options = optionsList || [];
-        // }
+          return formDataField;
+        }),
+      }
 
-        return formDataField;
-      }),
-    };
-
+    // const formData = {
+    //   formFields: formFields.map((field, index) => {
+    //     const fieldName = `field-${index}`;
+    //     const formDataField = {
+    //       fieldLabel: fieldLabels[fieldName] || 'Label',
+    //       fieldType: field.type,
+    //       options: field.type === 'select' ? (optionsList.find((item) => item.fieldName === fieldName)?.options || []) : [],
+    //     };
+    //     return formDataField;
+    //   }),
+    // };
 
     console.log("Data:", formData)
 
@@ -70,11 +77,11 @@ const CreateFormModal = ({ onClose }) => {
   const formik = useFormik({
     initialValues,
     onSubmit: handleSubmit,
-  });
+  })
 
   const handleOptionSelect = (fieldName, selectedOption) => {
     formik.setFieldValue(fieldName, selectedOption);
-  };
+  }
 
   const StarRating = ({ fieldName, value, setFieldValue }) => {
     const stars = [1, 2, 3, 4, 5];
@@ -99,7 +106,7 @@ const CreateFormModal = ({ onClose }) => {
         ))}
       </div>
     );
-  };
+  }
 
   const addFormField = (fieldType) => {
     setFormFields([...formFields, { type: fieldType }]);
@@ -112,7 +119,7 @@ const CreateFormModal = ({ onClose }) => {
       const fieldName = `rating-${formFields.length}`;
       initialValues[fieldName] = 0;
     }
-  };
+  }
 
   const removeFormField = (index) => {
     const updatedFields = [...formFields];
@@ -122,7 +129,7 @@ const CreateFormModal = ({ onClose }) => {
     const updatedEditMode = { ...editMode };
     delete updatedEditMode[formFields.length];
     setEditMode(updatedEditMode);
-  };
+  }
 
   const handleUnique = () => {
     const uniqueFields = new Set();
@@ -134,7 +141,7 @@ const CreateFormModal = ({ onClose }) => {
         console.log(`Field type "${fieldType}" is not unique.`);
       }
     });
-  };
+  }
 
   const handleRequired = () => {
     const requiredFields = new Set(['text', 'textarea', 'checkbox', 'radio', 'select', 'date', 'file', 'accept']);
@@ -153,60 +160,48 @@ const CreateFormModal = ({ onClose }) => {
     const newFieldLabels = { ...fieldLabels }
     newFieldLabels[index] = event.target.value
     setFieldLabels(newFieldLabels)
-  };
+  }
 
   const handleEditModeToggle = (index) => {
     setEditMode((prevEditModes) => ({
       ...prevEditModes,
       [index]: !prevEditModes[index],
     }));
-  };
+  }
 
   const handleOptionChange = (fieldName, optionIndex, optionValue) => {
     const newOptions = { ...selectFieldOptions };
     newOptions[fieldName][optionIndex] = optionValue;
     setSelectFieldOptions(newOptions);
-  };
+  }
 
   const handleAddOption = (fieldName, optionValue) => {
-    // setOptionsList((prevOptionsList) => [...prevOptionsList, optionValue]);
-    
-    // console.log("prevOptionsList", ...prevOptionsList)
 
-    // setOptionsList((prevOptionsList) => ({
-    //   ...(prevOptionsList, optionValue)
-    // }))    
-    
-    setOptionsList((prevOptionsList) => ({
-      ...prevOptionsList,
-      [fieldName]: [...(prevOptionsList[fieldName] || []), optionValue],
-    }))
+    setOptionsList((prevOptionsList) => ( [...prevOptionsList,optionValue] ))
 
-    console.log("optionValue", optionValue)
-    console.log("setOptionsList", optionsList)
 
-    const newOptions = { ...selectFieldOptions };
-    newOptions[fieldName] = newOptions[fieldName] || [];
-    newOptions[fieldName].push(optionValue);
-    setSelectFieldOptions(newOptions);
+    const newOptions = { ...selectFieldOptions }
+    newOptions[fieldName] = newOptions[fieldName] || []
+    newOptions[fieldName].push(optionValue)
+    setSelectFieldOptions(newOptions)
   };
 
-  // const handleRemoveOption = (fieldName, optionIndex) => {
+  const handleRemoveOption = (fieldName, optionIndex) => {
 
-  //   setOptionsList((prevOptionsList) =>
-  //     prevOptionsList.filter((_, index) => index !== optionIndex)
-  //   )
+    setOptionsList((prevOptionsList) =>
+      prevOptionsList.filter((_, index) => index !== optionIndex)
+    )
 
-  //   setSelectFieldOptions((prevOptions) => {
-  //     const newOptions = { ...prevOptions };
+    setSelectFieldOptions((prevOptions) => {
+      const newOptions = { ...prevOptions }
 
-  //     if (newOptions[fieldName]) {
-  //       newOptions[fieldName] = newOptions[fieldName].filter((_, index) => index !== optionIndex);
-  //     }
+      if (newOptions[fieldName]) {
+        newOptions[fieldName] = newOptions[fieldName].filter((_, index) => index !== optionIndex)
+      }
 
-  //     return newOptions;
-  //   });
-  // };
+      return newOptions
+    })
+  }
 
   const CustomDropdown = ({
     fieldName,
@@ -218,20 +213,20 @@ const CreateFormModal = ({ onClose }) => {
     onOptionChange,
     onOptionSelect,
   }) => {
-    const [showOptions, setShowOptions] = useState(false);
-    const [newOptionValue, setNewOptionValue] = useState("");
-    const [localSelectedOption, setLocalSelectedOption] = useState(selectedOption);
+    const [showOptions, setShowOptions] = useState(false)
+    const [newOptionValue, setNewOptionValue] = useState("")
+    const [localSelectedOption, setLocalSelectedOption] = useState(selectedOption)
 
     const handleInputChange = (event) => {
-      setNewOptionValue(event.target.value);
-    };
+      setNewOptionValue(event.target.value)
+    }
 
     const handleAddButtonClick = () => {
       if (newOptionValue.trim() !== "") {
-        onAddOption(fieldName, newOptionValue);
-        setNewOptionValue("");
+        onAddOption(fieldName, newOptionValue)
+        setNewOptionValue("")
       }
-    };
+    }
 
     const handleOptionClick = (option) => {
       onOptionChange(fieldName, option);
@@ -447,7 +442,7 @@ const CreateFormModal = ({ onClose }) => {
                       {formFields.map((field, index) => (
                         <div className="flex justify-start gap-3" key={index}>
                           <div>
-                          {renderFormField(field, index, `select-${index}`)}
+                            {renderFormField(field, index, `select-${index}`)}
                           </div>
                           <div className="flex gap-2 justify-end items-end pb-2">
                             <button onClick={handleUnique}><img src='/formfield/unique.svg' /></button>
