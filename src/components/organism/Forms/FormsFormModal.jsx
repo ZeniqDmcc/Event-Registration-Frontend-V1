@@ -11,6 +11,7 @@ const CreateFormModal = ({ onClose }) => {
   const [formFields, setFormFields] = useState([]);
   const [editMode, setEditMode] = useState({});
   const [fieldLabels, setFieldLabels] = useState({});
+  // const [selectFieldOptions, setSelectFieldOptions] = useState({});
   const [selectFieldOptions, setSelectFieldOptions] = useState({});
   const [selectedOptions, setSelectedOptions] = useState({});
   // const [optionsList, setOptionsList] = useState('')
@@ -28,7 +29,12 @@ const CreateFormModal = ({ onClose }) => {
         }
 
         if (field.type === 'select') {
-            formDataField.options = optionsList || [];
+          const fieldName = `select-field-${index}`
+          if(Array.isArray(optionsList[fieldName])) {
+            formDataField.options = optionsList[fieldName]
+          } else {
+            formDataField.options = [];
+          }
           }
 
           return formDataField;
@@ -177,8 +183,10 @@ const CreateFormModal = ({ onClose }) => {
 
   const handleAddOption = (fieldName, optionValue) => {
 
-    setOptionsList((prevOptionsList) => ( [...prevOptionsList,optionValue] ))
-
+    setOptionsList((prevOptionsList) => ({
+      ...prevOptionsList,
+      [fieldName]: [...(prevOptionsList[fieldName] || []), optionValue],
+    }))
 
     const newOptions = { ...selectFieldOptions }
     newOptions[fieldName] = newOptions[fieldName] || []
