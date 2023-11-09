@@ -1,80 +1,95 @@
 import Input from '@/components/atoms/Input';
 import { XIcon } from '@heroicons/react/solid';
+import axios from 'axios';
 import { Field, Form, Formik, useFormik } from 'formik';
-import { use, useState } from 'react';
-import Button from '../../atoms/Button';
+import { useEffect, useState } from 'react';
 import Heading from '../../atoms/Heading';
 import FieldButton from '../../molecules/FieldButton';
-import axios from 'axios';
 
-const CreateFormModal = ({ onClose }) => {
+const EditFormModal = ({ formId, onClose }) => {
   const [formFields, setFormFields] = useState([]);
   const [editMode, setEditMode] = useState({});
   const [fieldLabels, setFieldLabels] = useState({});
   const [selectFieldOptions, setSelectFieldOptions] = useState({});
   const [selectedOptions, setSelectedOptions] = useState({});
   const [optionsList, setOptionsList] = useState([]);
+  const [form, setform] = useState(null);
 
   let initialValues = {}
 
-  const handleSubmit = async (values) => {
+  
+  const handleSubmit = async () => {
 
+    const combinedFormFields = [...form.formFields, ...formFields];
+    
     const formData = {
-      formFields: formFields.map((field, index) => {
+      formFields: combinedFormFields.map((field, index) => {
         const formDataField = {
-          fieldLabel: fieldLabels[`field-${index}`] || 'Label',
-          fieldType: field.type
-        }
-
-        if (field.type === 'select') {
-          const fieldName = `select-field-${index}`
-          if (Array.isArray(optionsList[fieldName])) {
-            formDataField.options = optionsList[fieldName]
-          } else {
-            formDataField.options = [];
-          }
-        } else if (field.type === 'checkbox') {
-          // Handle checkbox field
-          formDataField.options = ['true', 'false'];
-        } else if (field.type === 'radio') {
-          // Handle checkbox field
-          formDataField.options = ['true', 'false'];
-        } else if (field.type === 'accept') {
-          // Handle checkbox field
+          fieldLabel: field.fieldLabel || 'Label',
+          fieldType: field.fieldType,
+        };
+  
+        if (field.fieldType === 'select') {
+          formDataField.options = field.options || [];
+        } else if (field.fieldType === 'checkbox' || field.fieldType === 'radio' || field.fieldType === 'accept') {
           formDataField.options = ['true', 'false'];
         }
-
+  
         return formDataField;
       }),
-    }
+    };
 
+    console.log("Data:", formData);
 
-    console.log("Data:", formData)
-
-    const token = localStorage.getItem('access_token')
-
+    const token = localStorage.getItem('access_token');
     const headers = {
       Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json',
-    }
+    };
 
     try {
-      const response = await axios.post('http://localhost:9003/admin/form/createForm',
-        formData,
-        { headers }
-      )
+      const response = await axios.put(`http://localhost:9003/admin/form/${form.formId}`, formData, {
+        headers,
+      });
 
-      if (!response.ok) {
-        console.error('Network response not OK:', response.status, response.statusText)
-        throw new Error('Network response was not ok')
+      if (response.status === 200) {
+        console.log('Form update successful.');
+      } else {
+        console.error('Form update failed:', response.status, response.statusText);
+        throw new Error('Form update failed');
       }
-
-      const data = await response.json()
-      console.log('Form submission successful:', data)
     } catch (error) {
-      console.error('Error submitting form:', error)
+      console.error('Error updating form:', error);
     }
-  }
+  };
+
+
+  useEffect(() => {
+    const fetchFormData = async () => {
+      try {
+        const token = localStorage.getItem('access_token');
+        const headers = {
+          Authorization: `Bearer ${token}`,
+        };
+
+        const response = await axios.get(`http://localhost:9003/admin/form/${formId}`, {
+          headers: headers,
+        });
+
+        console.log("response.data.formData", response.data.formFields)
+
+        if (response.data.status === true) {
+          setform(response.data.data); // Set the form data to state
+        } else {
+          console.error('Error fetching form data:', response.data.error);
+        }
+      } catch (error) {
+        console.error('Error fetching form data:', error);
+      }
+    };
+
+    fetchFormData();
+  }, [formId]);
 
   const formik = useFormik({
     initialValues,
@@ -141,23 +156,15 @@ const CreateFormModal = ({ onClose }) => {
   // Remove Field
 
   const removeFormField = (index) => {
-    const updatedFields = [...formFields];
-    updatedFields.splice(index, 1);
-    setFormFields(updatedFields);
+    // Create a copy of the form fields array without the field to remove
+    const updatedFormFields = [...form.formFields];
+    updatedFormFields.splice(index, 1);
 
-    // Clear label and field value
-    const updatedFieldLabels = { ...fieldLabels };
-    delete updatedFieldLabels[`field-${index}`];
-    setFieldLabels(updatedFieldLabels);
-
-    const updatedEditMode = { ...editMode };
-    delete updatedEditMode[formFields.length];
-    setEditMode(updatedEditMode);
-
-    // Clear the field value in formik
-    const fieldName = `${formFields[index].type}-${`field-${index}`}`;
-    formik.setFieldValue(fieldName, null);
+    // Update the state with the modified form fields
+    setform({ ...form, formFields: updatedFormFields });
   };
+
+
 
   const handleUnique = () => {
     const uniqueFields = new Set();
@@ -265,7 +272,7 @@ const CreateFormModal = ({ onClose }) => {
       setLocalSelectedOption(option);
       onOptionSelect(option);
     };
-    
+
     return (
       <div className="relative">
         <div
@@ -316,7 +323,7 @@ const CreateFormModal = ({ onClose }) => {
               </div>
             ))}
             <div className="add-option flex border rounded justify-between p-2">
-              <input
+              <Input
                 className="outline-none"
                 type="text"
                 placeholder="New option..."
@@ -355,7 +362,7 @@ const CreateFormModal = ({ onClose }) => {
       <div key={index} className='flex flex-col gap-2'>
         {editMode[index] ? (
           <div>
-            <input
+            <Input
               type="text"
               value={fieldLabel}
               onChange={(event) => handleLabelChange(event, fieldIdentifier)}
@@ -375,7 +382,7 @@ const CreateFormModal = ({ onClose }) => {
         )}
         <>
           {field.type === 'text' && (
-            <Field component={Input} inputType="text" name={fieldName} placeholder="Text Field" />
+            <Field component={Input} InputType="text" name={fieldName} placeholder="Text Field" />
           )}
           {field.type === 'textarea' && (
             <Field as="textarea" name={fieldName} placeholder="Text Area" />
@@ -434,6 +441,8 @@ const CreateFormModal = ({ onClose }) => {
     );
   };
 
+
+
   let fieldButtonStyle = "w-[48%] justify-left p-8"
 
   return (
@@ -441,7 +450,11 @@ const CreateFormModal = ({ onClose }) => {
       <div className='bg-white rounded-lg p-6 w-[80%]'>
         <div className='flex justify-between'>
           <div className="">
-            <Heading level="2">Create/Edit Form</Heading>
+            {form && (
+              <div>
+                <Heading level="2">Create/Edit Form {form.formId}</Heading>
+              </div>
+            )}
           </div>
           <button className='text-gray-500 hover:text-gray-700' onClick={onClose}>
             <XIcon className='w-5 h-5' />
@@ -460,19 +473,208 @@ const CreateFormModal = ({ onClose }) => {
                 <Form>
                   <div className='p-16 w-full'>
                     <div className="flex flex-col gap-8">
-                      {formFields.map((field, index) => (
-                        <div className="flex justify-start gap-3" key={index}>
-                          <div>
-                            {renderFormField(field, index, `select-${index}`)}
-                          </div>
+                    {form && [
+                      ...form.formFields.map((field, index) => (
+                        <div key={index}>
+                          {field.fieldType === 'text' && (
+                            <div>
+                              <div>
+                                <label htmlFor={field.fieldName}>{field.fieldLabel}</label>
+                                <Input type="text" id={field.fieldName} name={field.fieldName} />
+                              </div>
+                            </div>
+                          )}
+                          {field.fieldType === 'textarea' && (
+                            <div>
+                              <div>
+                                <label htmlFor={field.fieldName}>{field.fieldLabel}</label>
+                                <textarea id={field.fieldName} name={field.fieldName} />
+                              </div>
+                            </div>
+                          )}
+                          {field.fieldType === 'checkbox' && (
+                            <div>
+                              <div>
+                                <Input type="checkbox" id={field.fieldName} name={field.fieldName} />
+                                <label htmlFor={field.fieldName}>{field.fieldLabel}</label>
+                              </div>
+                            </div>
+                          )}
+                          {field.fieldType === 'radio' && (
+                            <div>
+                              <div>
+                                <label>{field.fieldLabel}</label>
+                                {field.options.map((option, optionIndex) => (
+                                  <div key={optionIndex}>
+                                    <Input
+                                      type="radio"
+                                      id={`${field.fieldName}_${optionIndex}`}
+                                      name={field.fieldName}
+                                      value={option}
+                                    />
+                                    <label htmlFor={`${field.fieldName}_${optionIndex}`}>{option}</label>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                          {field.fieldType === 'dropdown' && (
+                            <div>
+                              <div>
+                                <label htmlFor={field.fieldName}>{field.fieldLabel}</label>
+                                <select id={field.fieldName} name={field.fieldName}>
+                                  {field.options.map((option, optionIndex) => (
+                                    <option key={optionIndex} value={option}>
+                                      {option}
+                                    </option>
+                                  ))}
+                                </select>
+                              </div>
+                            </div>
+                          )}
+                          {field.fieldType === 'date' && (
+                            <div>
+                              <div>
+                                <label htmlFor={field.fieldName}>{field.fieldLabel}</label>
+                                <Input type="date" id={field.fieldName} name={field.fieldName} />
+                              </div>
+                            </div>
+                          )}
+                          {field.fieldType === 'file' && (
+                            <div>
+                              <div>
+                                <label htmlFor={field.fieldName}>{field.fieldLabel}</label>
+                                <Input type="file" id={field.fieldName} name={field.fieldName} accept="image/*" />
+                              </div>
+                            </div>
+                          )}
+                          {field.fieldType === 'tandc' && (
+                            <div>
+                              <div>
+                                <Input type="checkbox" id={field.fieldName} name={field.fieldName} />
+                                <label htmlFor={field.fieldName}>{field.fieldLabel}</label>
+                              </div>
+                            </div>
+                          )}
                           <div className="flex gap-2 justify-end items-end pb-2">
                             <button onClick={handleUnique}><img src='/formfield/unique.svg' /></button>
                             <button onClick={handleRequired}><img src='/formfield/required.svg' /></button>
-                            <button onClick={() => removeFormField(index)}><img src='/formfield/minus.svg' /></button>
+                            <button type="button" onClick={() => removeFormField(index)}>
+                              <img src='/formfield/minus.svg' />
+                            </button>
                             <button onClick={() => addFormField(field.type)}><img src='/formfield/addfield.svg' /></button>
                           </div>
                         </div>
-                      ))}
+                      )),
+                      ...formFields.map((field, index) => (
+                        <div className="flex justify-start gap-3" key={index}>
+                          <div>
+                            {renderFormField(field, index, `select-${index}`)}
+                            {field.fieldName}
+                          </div>
+                        </div>
+                      ))
+                    ]}
+                      {/* {form && form.formFields.map((field, index) => (
+                        <div key={index}>
+                          {field.fieldType === 'text' && (
+                            <div>
+                              <div>
+                                <label htmlFor={field.fieldName}>{field.fieldLabel}</label>
+                                <Input type="text" id={field.fieldName} name={field.fieldName} />
+                              </div>
+                            </div>
+                          )}
+                          {field.fieldType === 'textarea' && (
+                            <div>
+                              <div>
+                                <label htmlFor={field.fieldName}>{field.fieldLabel}</label>
+                                <textarea id={field.fieldName} name={field.fieldName} />
+                              </div>
+                            </div>
+                          )}
+                          {field.fieldType === 'checkbox' && (
+                            <div>
+                              <div>
+                                <Input type="checkbox" id={field.fieldName} name={field.fieldName} />
+                                <label htmlFor={field.fieldName}>{field.fieldLabel}</label>
+                              </div>
+                            </div>
+                          )}
+                          {field.fieldType === 'radio' && (
+                            <div>
+                              <div>
+                                <label>{field.fieldLabel}</label>
+                                {field.options.map((option, optionIndex) => (
+                                  <div key={optionIndex}>
+                                    <Input
+                                      type="radio"
+                                      id={`${field.fieldName}_${optionIndex}`}
+                                      name={field.fieldName}
+                                      value={option}
+                                    />
+                                    <label htmlFor={`${field.fieldName}_${optionIndex}`}>{option}</label>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                          {field.fieldType === 'dropdown' && (
+                            <div>
+                              <div>
+                                <label htmlFor={field.fieldName}>{field.fieldLabel}</label>
+                                <select id={field.fieldName} name={field.fieldName}>
+                                  {field.options.map((option, optionIndex) => (
+                                    <option key={optionIndex} value={option}>
+                                      {option}
+                                    </option>
+                                  ))}
+                                </select>
+                              </div>
+                            </div>
+                          )}
+                          {field.fieldType === 'date' && (
+                            <div>
+                              <div>
+                                <label htmlFor={field.fieldName}>{field.fieldLabel}</label>
+                                <Input type="date" id={field.fieldName} name={field.fieldName} />
+                              </div>
+                            </div>
+                          )}
+                          {field.fieldType === 'file' && (
+                            <div>
+                              <div>
+                                <label htmlFor={field.fieldName}>{field.fieldLabel}</label>
+                                <Input type="file" id={field.fieldName} name={field.fieldName} accept="image/*" />
+                              </div>
+                            </div>
+                          )}
+                          {field.fieldType === 'tandc' && (
+                            <div>
+                              <div>
+                                <Input type="checkbox" id={field.fieldName} name={field.fieldName} />
+                                <label htmlFor={field.fieldName}>{field.fieldLabel}</label>
+                              </div>
+                            </div>
+                          )}
+                          <div className="flex gap-2 justify-end items-end pb-2">
+                            <button onClick={handleUnique}><img src='/formfield/unique.svg' /></button>
+                            <button onClick={handleRequired}><img src='/formfield/required.svg' /></button>
+                            <button type="button" onClick={() => removeFormField(index)}>
+                              <img src='/formfield/minus.svg' />
+                            </button>
+                            <button onClick={() => addFormField(field.type)}><img src='/formfield/addfield.svg' /></button>
+                          </div>
+                        </div>
+                      ))} */}
+                      {/* {formFields.map((field, index) => (
+                        <div className="flex justify-start gap-3" key={index}>
+                          <div>
+                            {renderFormField(field, index, `select-${index}`)}
+                            {field.fieldName}
+                          </div>
+                        </div>
+                      ))} */}
                     </div>
 
                     <button type='submit'>save</button>
@@ -507,4 +709,4 @@ const CreateFormModal = ({ onClose }) => {
   )
 }
 
-export default CreateFormModal
+export default EditFormModal
