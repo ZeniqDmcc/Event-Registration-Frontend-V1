@@ -1,7 +1,7 @@
 import React from 'react'
 import Button from '@/components/atoms/Button'
 
-function FormHover({ Viewform, editForm, deleteFormData, formId, duplicateFormData }) {
+function FormHover({ Viewform, editForm, deleteFormData, formId, duplicateForm }) {
   return (
     <div className='bg-white hidden event-hover max-w-[300px] h-[349px] mb-6 p-3 shadow-secondary gap-2 group-hover:flex flex-col rounded-[6px]'>
         <Button variant='hoverButton'  onClick={() => Viewform(formId)}>
@@ -16,7 +16,7 @@ function FormHover({ Viewform, editForm, deleteFormData, formId, duplicateFormDa
             <img src="/Hover/Trash.svg" alt="Delete" />
             Delete
         </Button>
-        <Button variant='hoverButton' href='/dashboard'>
+        <Button variant='hoverButton' onClick={() => duplicateForm(formId)}>
             <img src="/Hover/Copy.svg" alt="Duplicate" />
             Duplicate
         </Button>

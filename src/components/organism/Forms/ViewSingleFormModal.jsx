@@ -103,7 +103,7 @@ const ViewSingleFormModel = ({ onClose, formId }) => {
                                         {field.fieldType === 'radio' && (
                                             <div>
                                                 <label>{field.fieldLabel}</label>
-                                                {field.options.map((option, optionIndex) => (
+                                                {Array.isArray(field.options) && ((option, optionIndex) => (
                                                     <div key={optionIndex}>
                                                         <input
                                                             type="radio"
@@ -117,11 +117,11 @@ const ViewSingleFormModel = ({ onClose, formId }) => {
                                             </div>
                                         )}
 
-                                        {field.fieldType === 'dropdown' && (
+                                        {field.fieldType === 'select' && (
                                             <div>
                                                 <label htmlFor={field.fieldName}>{field.fieldLabel}</label>
                                                 <select id={field.fieldName} name={field.fieldName}>
-                                                    {field.options.map((option, optionIndex) => (
+                                                    {Array.isArray(field.options) && ((option, optionIndex) => (
                                                         <option key={optionIndex} value={option}>
                                                             {option}
                                                         </option>

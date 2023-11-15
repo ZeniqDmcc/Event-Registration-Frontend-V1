@@ -17,24 +17,30 @@ const EditFormModal = ({ formId, onClose }) => {
 
   let initialValues = {}
 
-  
-  const handleSubmit = async () => {
+  const handleSubmit = async (values) => {
 
     const combinedFormFields = [...form.formFields, ...formFields];
-    
+
     const formData = {
       formFields: combinedFormFields.map((field, index) => {
         const formDataField = {
-          fieldLabel: field.fieldLabel || 'Label',
-          fieldType: field.fieldType,
+          fieldLabel: fieldLabels[`field-${index}`] || 'Label',
+          fieldType: field.type || field.fieldType,
         };
-  
-        if (field.fieldType === 'select') {
-          formDataField.options = field.options || [];
-        } else if (field.fieldType === 'checkbox' || field.fieldType === 'radio' || field.fieldType === 'accept') {
-          formDataField.options = ['true', 'false'];
+
+        if (field.type) {
+          if (field.type === 'select') {
+            const fieldName = `select-field-${index}`;
+            if (Array.isArray(optionsList[fieldName])) {
+              formDataField.options = optionsList[fieldName];
+            } else {
+              formDataField.options = [];
+            }
+          } else if (field.type === 'checkbox' || field.type === 'radio' || field.type === 'accept') {
+            formDataField.options = ['true', 'false'];
+          }
         }
-  
+    
         return formDataField;
       }),
     };
@@ -45,7 +51,7 @@ const EditFormModal = ({ formId, onClose }) => {
     const headers = {
       Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json',
-    };
+    }
 
     try {
       const response = await axios.put(`http://localhost:9003/admin/form/${form.formId}`, formData, {
@@ -63,7 +69,6 @@ const EditFormModal = ({ formId, onClose }) => {
     }
   };
 
-
   useEffect(() => {
     const fetchFormData = async () => {
       try {
@@ -80,6 +85,20 @@ const EditFormModal = ({ formId, onClose }) => {
 
         if (response.data.status === true) {
           setform(response.data.data); // Set the form data to state
+
+          // Extract options for each select field and set them in selectFieldOptions state
+          const options = {};
+          formData.formFields.forEach((field) => {
+            if (field.fieldType === 'select') {
+              options[field.fieldName] = field.options || [];
+            }
+          });
+
+          // console.log("Form Data:", formData)
+
+          setSelectFieldOptions(options);
+          setform(formData);
+
         } else {
           console.error('Error fetching form data:', response.data.error);
         }
@@ -125,33 +144,52 @@ const EditFormModal = ({ formId, onClose }) => {
     );
   }
 
-  const addFormField = (fieldType) => {
-    setFormFields([...formFields, { type: fieldType }]);
-    setEditMode((prevEditModes) => ({
-      ...prevEditModes,
-      [formFields.length]: false,
-    }));
+// ////////////////////////////////////////////////// ///////////////////// //////////// //////////////////////
 
-    if (fieldType === 'rating') {
+
+
+
+
+
+
+  const addFormField = (fieldType) => {
+    console.log("I clicking this addFormField Button and it's working.", fieldType)
+    // For existing fields, use the provided fieldType; for new fields, use the field.type
+    const newFieldType = fieldType || (formFields.length > 0 ? formFields[formFields.length - 1].type : null);
+
+    const newField = { type: newFieldType };
+
+    setFormFields([...formFields, newField]);
+
+    // Rest of your logic...
+
+    // Example: For the 'rating' field type
+    if (newFieldType === 'rating') {
       const fieldName = `rating-${formFields.length}`;
       initialValues[fieldName] = 0;
     }
 
-    // Checkbox
-
-    if (fieldType === 'checkbox') {
+    // Example: For the 'checkbox' field type
+    if (newFieldType === 'checkbox') {
       const fieldName = `checkbox-${formFields.length}`;
-      initialValues[fieldName] = false; // You can set the initial value for checkbox as needed
+      initialValues[fieldName] = false;
 
       // When adding a checkbox field, make sure it has options
       const checkboxField = {
-        type: fieldType,
+        type: newFieldType,
         options: [] // Initialize options for the checkbox field
       };
 
       setFormFields([...formFields, checkboxField]);
     }
-  }
+
+    // Rest of your logic...
+
+    setEditMode((prevEditModes) => ({
+      ...prevEditModes,
+      [formFields.length]: false,
+    }));
+  };
 
   // Remove Field
 
@@ -163,8 +201,6 @@ const EditFormModal = ({ formId, onClose }) => {
     // Update the state with the modified form fields
     setform({ ...form, formFields: updatedFormFields });
   };
-
-
 
   const handleUnique = () => {
     const uniqueFields = new Set();
@@ -221,7 +257,7 @@ const EditFormModal = ({ formId, onClose }) => {
     newOptions[fieldName] = newOptions[fieldName] || []
     newOptions[fieldName].push(optionValue)
     setSelectFieldOptions(newOptions)
-  };
+  }
 
   const handleRemoveOption = (fieldName, optionIndex) => {
 
@@ -313,6 +349,7 @@ const EditFormModal = ({ formId, onClose }) => {
                 </span>
                 <button
                   className="remove-button"
+                  type="button"
                   onClick={(event) => {
                     event.stopPropagation();
                     onRemoveOption(fieldName, optionIndex);
@@ -331,7 +368,7 @@ const EditFormModal = ({ formId, onClose }) => {
                 onClick={(event) => event.stopPropagation()}
                 onChange={handleInputChange}
               />
-              <button
+              <button type="button"
                 onClick={(event) => {
                   event.stopPropagation();
                   handleAddButtonClick();
@@ -367,7 +404,7 @@ const EditFormModal = ({ formId, onClose }) => {
               value={fieldLabel}
               onChange={(event) => handleLabelChange(event, fieldIdentifier)}
             />
-            <button onClick={() => handleEditModeToggle(index)}>Save</button>
+            <button type="button" onClick={() => handleEditModeToggle(index)}>Save</button>
           </div>
         ) : (
           <div>
@@ -382,7 +419,7 @@ const EditFormModal = ({ formId, onClose }) => {
         )}
         <>
           {field.type === 'text' && (
-            <Field component={Input} InputType="text" name={fieldName} placeholder="Text Field" />
+            <Field component={Input} type="text" name={fieldName} placeholder="Text Field" />
           )}
           {field.type === 'textarea' && (
             <Field as="textarea" name={fieldName} placeholder="Text Area" />
@@ -441,8 +478,6 @@ const EditFormModal = ({ formId, onClose }) => {
     );
   };
 
-
-
   let fieldButtonStyle = "w-[48%] justify-left p-8"
 
   return (
@@ -456,7 +491,7 @@ const EditFormModal = ({ formId, onClose }) => {
               </div>
             )}
           </div>
-          <button className='text-gray-500 hover:text-gray-700' onClick={onClose}>
+          <button type="button" className='text-gray-500 hover:text-gray-700' onClick={onClose}>
             <XIcon className='w-5 h-5' />
           </button>
         </div>
@@ -473,210 +508,126 @@ const EditFormModal = ({ formId, onClose }) => {
                 <Form>
                   <div className='p-16 w-full'>
                     <div className="flex flex-col gap-8">
-                    {form && [
-                      ...form.formFields.map((field, index) => (
-                        <div key={index}>
-                          {field.fieldType === 'text' && (
-                            <div>
+                      {form && [
+                        ...form.formFields.map((field, index) => (
+                          <div key={`formField-${field.fieldType}-${index}`}>
+                            {field.fieldType === 'text' && (
                               <div>
                                 <label htmlFor={field.fieldName}>{field.fieldLabel}</label>
                                 <Input type="text" id={field.fieldName} name={field.fieldName} />
                               </div>
-                            </div>
-                          )}
-                          {field.fieldType === 'textarea' && (
-                            <div>
+                            )}
+                            {field.fieldType === 'textarea' && (
                               <div>
                                 <label htmlFor={field.fieldName}>{field.fieldLabel}</label>
                                 <textarea id={field.fieldName} name={field.fieldName} />
                               </div>
-                            </div>
-                          )}
-                          {field.fieldType === 'checkbox' && (
-                            <div>
+                            )}
+                            {field.fieldType === 'checkbox' && (
                               <div>
                                 <Input type="checkbox" id={field.fieldName} name={field.fieldName} />
                                 <label htmlFor={field.fieldName}>{field.fieldLabel}</label>
                               </div>
-                            </div>
-                          )}
-                          {field.fieldType === 'radio' && (
-                            <div>
-                              <div>
-                                <label>{field.fieldLabel}</label>
-                                {field.options.map((option, optionIndex) => (
-                                  <div key={optionIndex}>
-                                    <Input
-                                      type="radio"
-                                      id={`${field.fieldName}_${optionIndex}`}
-                                      name={field.fieldName}
-                                      value={option}
-                                    />
-                                    <label htmlFor={`${field.fieldName}_${optionIndex}`}>{option}</label>
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          )}
-                          {field.fieldType === 'dropdown' && (
-                            <div>
-                              <div>
-                                <label htmlFor={field.fieldName}>{field.fieldLabel}</label>
-                                <select id={field.fieldName} name={field.fieldName}>
-                                  {field.options.map((option, optionIndex) => (
-                                    <option key={optionIndex} value={option}>
-                                      {option}
-                                    </option>
-                                  ))}
-                                </select>
-                              </div>
-                            </div>
-                          )}
-                          {field.fieldType === 'date' && (
-                            <div>
-                              <div>
-                                <label htmlFor={field.fieldName}>{field.fieldLabel}</label>
-                                <Input type="date" id={field.fieldName} name={field.fieldName} />
-                              </div>
-                            </div>
-                          )}
-                          {field.fieldType === 'file' && (
-                            <div>
-                              <div>
-                                <label htmlFor={field.fieldName}>{field.fieldLabel}</label>
-                                <Input type="file" id={field.fieldName} name={field.fieldName} accept="image/*" />
-                              </div>
-                            </div>
-                          )}
-                          {field.fieldType === 'tandc' && (
-                            <div>
-                              <div>
-                                <Input type="checkbox" id={field.fieldName} name={field.fieldName} />
-                                <label htmlFor={field.fieldName}>{field.fieldLabel}</label>
-                              </div>
-                            </div>
-                          )}
-                          <div className="flex gap-2 justify-end items-end pb-2">
-                            <button onClick={handleUnique}><img src='/formfield/unique.svg' /></button>
-                            <button onClick={handleRequired}><img src='/formfield/required.svg' /></button>
-                            <button type="button" onClick={() => removeFormField(index)}>
-                              <img src='/formfield/minus.svg' />
-                            </button>
-                            <button onClick={() => addFormField(field.type)}><img src='/formfield/addfield.svg' /></button>
-                          </div>
-                        </div>
-                      )),
-                      ...formFields.map((field, index) => (
-                        <div className="flex justify-start gap-3" key={index}>
-                          <div>
-                            {renderFormField(field, index, `select-${index}`)}
-                            {field.fieldName}
-                          </div>
-                        </div>
-                      ))
-                    ]}
-                      {/* {form && form.formFields.map((field, index) => (
-                        <div key={index}>
-                          {field.fieldType === 'text' && (
-                            <div>
-                              <div>
-                                <label htmlFor={field.fieldName}>{field.fieldLabel}</label>
-                                <Input type="text" id={field.fieldName} name={field.fieldName} />
-                              </div>
-                            </div>
-                          )}
-                          {field.fieldType === 'textarea' && (
-                            <div>
-                              <div>
-                                <label htmlFor={field.fieldName}>{field.fieldLabel}</label>
-                                <textarea id={field.fieldName} name={field.fieldName} />
-                              </div>
-                            </div>
-                          )}
-                          {field.fieldType === 'checkbox' && (
-                            <div>
-                              <div>
-                                <Input type="checkbox" id={field.fieldName} name={field.fieldName} />
-                                <label htmlFor={field.fieldName}>{field.fieldLabel}</label>
-                              </div>
-                            </div>
-                          )}
-                          {field.fieldType === 'radio' && (
-                            <div>
-                              <div>
-                                <label>{field.fieldLabel}</label>
-                                {field.options.map((option, optionIndex) => (
-                                  <div key={optionIndex}>
-                                    <Input
-                                      type="radio"
-                                      id={`${field.fieldName}_${optionIndex}`}
-                                      name={field.fieldName}
-                                      value={option}
-                                    />
-                                    <label htmlFor={`${field.fieldName}_${optionIndex}`}>{option}</label>
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          )}
-                          {field.fieldType === 'dropdown' && (
-                            <div>
-                              <div>
-                                <label htmlFor={field.fieldName}>{field.fieldLabel}</label>
-                                <select id={field.fieldName} name={field.fieldName}>
-                                  {field.options.map((option, optionIndex) => (
-                                    <option key={optionIndex} value={option}>
-                                      {option}
-                                    </option>
-                                  ))}
-                                </select>
-                              </div>
-                            </div>
-                          )}
-                          {field.fieldType === 'date' && (
-                            <div>
-                              <div>
-                                <label htmlFor={field.fieldName}>{field.fieldLabel}</label>
-                                <Input type="date" id={field.fieldName} name={field.fieldName} />
-                              </div>
-                            </div>
-                          )}
-                          {field.fieldType === 'file' && (
-                            <div>
-                              <div>
-                                <label htmlFor={field.fieldName}>{field.fieldLabel}</label>
-                                <Input type="file" id={field.fieldName} name={field.fieldName} accept="image/*" />
-                              </div>
-                            </div>
-                          )}
-                          {field.fieldType === 'tandc' && (
-                            <div>
-                              <div>
-                                <Input type="checkbox" id={field.fieldName} name={field.fieldName} />
-                                <label htmlFor={field.fieldName}>{field.fieldLabel}</label>
-                              </div>
-                            </div>
-                          )}
-                          <div className="flex gap-2 justify-end items-end pb-2">
-                            <button onClick={handleUnique}><img src='/formfield/unique.svg' /></button>
-                            <button onClick={handleRequired}><img src='/formfield/required.svg' /></button>
-                            <button type="button" onClick={() => removeFormField(index)}>
-                              <img src='/formfield/minus.svg' />
-                            </button>
-                            <button onClick={() => addFormField(field.type)}><img src='/formfield/addfield.svg' /></button>
-                          </div>
-                        </div>
-                      ))} */}
-                      {/* {formFields.map((field, index) => (
-                        <div className="flex justify-start gap-3" key={index}>
-                          <div>
-                            {renderFormField(field, index, `select-${index}`)}
-                            {field.fieldName}
-                          </div>
-                        </div>
-                      ))} */}
-                    </div>
+                            )}
 
+                            {field.fieldType === 'radio' && field.options && (
+                              <div>
+                                <label>{field.fieldLabel}</label>
+                                {field.options.map((option, optionIndex) => (
+                                  <div key={optionIndex}>
+                                    <Input
+                                      type="radio"
+                                      id={`${field.fieldName}_${optionIndex}`}
+                                      name={field.fieldName}
+                                      value={option}
+                                    />
+                                    <label htmlFor={`${field.fieldName}_${optionIndex}`}>{option}</label>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+
+                            {field.fieldType === "select" && (
+                              <div>
+                                <CustomDropdown
+                                  fieldName={field.fieldName}
+                                  options={field.options || []}  // Use existing options if available
+                                  selectedOption={selectedOptions[field.fieldName]}
+                                  onSelect={(selectedOption) => {
+                                    setSelectedOptions((prevSelectedOptions) => ({
+                                      ...prevSelectedOptions,
+                                      [fieldName]: selectedOption,
+                                    }));
+                                  }}
+                                  onAddOption={(fieldName, optionValue) =>
+                                    handleAddOption(fieldName, optionValue)
+                                  }
+                                  onRemoveOption={(fieldName, optionIndex) =>
+                                    handleRemoveOption(fieldName, optionIndex)
+                                  }
+                                  onOptionChange={(fieldName, optionIndex, optionValue) =>
+                                    handleOptionChange(fieldName, optionIndex, optionValue)
+                                  }
+                                  onOptionSelect={(selectedOption) => {
+                                    setSelectedOptions((prevSelectedOptions) => ({
+                                      ...prevSelectedOptions,
+                                      [fieldName]: selectedOption,
+                                    }));
+                                  }}
+                                />
+                              </div>
+                            )}
+
+                            {field.fieldType === 'date' && (
+                              <div>
+                                <label htmlFor={field.fieldName}>{field.fieldLabel}</label>
+                                <Input type="date" id={field.fieldName} name={field.fieldName} />
+                              </div>
+                            )}
+
+                            {field.fieldType === 'file' && (
+                              <div>
+                                <label htmlFor={field.fieldName}>{field.fieldLabel}</label>
+                                <Input type="file" id={field.fieldName} name={field.fieldName} accept="image/*" />
+                              </div>
+                            )}
+
+                            {field.fieldType === 'tandc' && (
+                              <div>
+                                <label htmlFor={field.fieldName}>{field.fieldLabel}</label>
+                                <Input type="checkbox" id={field.fieldName} name={field.fieldName} />
+                              </div>
+                            )}
+
+                            <div className="flex gap-2 justify-end items-end pb-2">
+                              <button type="button" onClick={handleUnique}><img src='/formfield/unique.svg' /></button>
+                              <button type="button" onClick={handleRequired}><img src='/formfield/required.svg' /></button>
+                              <button type="button" onClick={() => removeFormField(index)}><img src='/formfield/minus.svg' /></button>
+                              <button type="button" onClick={() => addFormField(field.fieldType)}>
+                                11111 <img src='/formfield/addfield.svg' />
+                              </button>
+                            </div>
+                          </div>
+                        )),
+                        ...formFields.map((field, index) => (
+                          <div className="flex justify-start 5555 gap-3" key={index}>
+                            <div>
+                              {renderFormField(field, index, `select-${index}`)}
+                              {field.fieldName}
+                            </div>
+
+                            <div className="flex gap-2 justify-end items-end pb-2">
+                              <button type="button" onClick={handleUnique}><img src='/formfield/unique.svg' /></button>
+                              <button type="button" onClick={handleRequired}><img src='/formfield/required.svg' /></button>
+                              <button type="button" onClick={() => removeFormField(index)}><img src='/formfield/minus.svg' /></button>
+                              <button type="button" onClick={() => addFormField(field.type)}>
+                                222222 <img src='/formfield/addfield.svg' />
+                              </button>
+                            </div>
+                          </div>
+                        ))
+                      ]}
+                    </div>
                     <button type='submit'>save</button>
                     {/* <Button customButtonStyle="w-full h-[62px]" variant="primary">Save</Button> */}
                   </div>

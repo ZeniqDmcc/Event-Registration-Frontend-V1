@@ -34,13 +34,10 @@ const CreateFormModal = ({ onClose }) => {
             formDataField.options = [];
           }
         } else if (field.type === 'checkbox') {
-          // Handle checkbox field
           formDataField.options = ['true', 'false'];
         } else if (field.type === 'radio') {
-          // Handle checkbox field
           formDataField.options = ['true', 'false'];
         } else if (field.type === 'accept') {
-          // Handle checkbox field
           formDataField.options = ['true', 'false'];
         }
 
