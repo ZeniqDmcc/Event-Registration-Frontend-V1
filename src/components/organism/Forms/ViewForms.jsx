@@ -119,7 +119,7 @@ const ViewFormsData = () => {
 
   useEffect(() => {
     fetchForms()
-  }, [fetchForms()])
+  }, [])
 
   let box = "w-[23%] h-[349px] rounded-[8px] shadow-secondary group hover:bg-gray-100"
   let singleBox = "w-[23%] ixb-flex-both flex-col gap-6 bg-bluebg h-[349px] rounded-[8px] shadow-secondary cursor-pointer"

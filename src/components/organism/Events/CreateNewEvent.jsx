@@ -208,14 +208,7 @@ const CreateNewEvent = ({ handleSubmit }) => {
                                 >
                                     Create Event
                                 </Button> */}
-                                <button type="submit">Save</button>
-                                {/* <Button
-                                    customButtonStyle="w-[48%] border-[1px] border-[#A8A8A8]"
-                                    inputType="submit"  // Change inputType to "button"
-                                    variant="secondary"
-                                >
-                                    Save and Exit
-                                </Button> */}
+                                {/* <button type="submit">Save</button> */}
                             </div>
                         </div>
                     </Form>
