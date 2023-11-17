@@ -70,7 +70,7 @@ const ViewSingleFormModel = ({ onClose, formId }) => {
     };
 
     return (
-        <div className='fixed inset-0 flex flex-col justify-center items-center bg-white z-10'>
+        <div className='fixed inset-0 z-10 flex flex-col items-center justify-center bg-white'>
             <div className='flex justify-between w-[70%]'>
                 <Heading level="1">
                     Form ID: {form && form.formId}
@@ -89,7 +89,7 @@ const ViewSingleFormModel = ({ onClose, formId }) => {
                                     {form.formFields.map((field, index) => (
                                         <div key={index}>
                                             {field.fieldType === 'text' && (
-                                                <div className='flex flex-col w-[60%]'>
+                                                <div className='flex flex-col w-[60%] gap-3'>
                                                     <label htmlFor={field.fieldName}>{field.fieldLabel}</label>
                                                     <Input type="text" id={field.fieldName} name={field.fieldName} />
                                                 </div>
@@ -101,7 +101,7 @@ const ViewSingleFormModel = ({ onClose, formId }) => {
                                                 </div>
                                             )}
                                             {field.fieldType === 'checkbox' && (
-                                                <div className='flex gap-3 items-start'>
+                                                <div className='flex items-center gap-3'>
                                                     <input type="checkbox" id={field.fieldName} name={field.fieldName} />
                                                     <label htmlFor={field.fieldName}>{field.fieldLabel}</label>
                                                 </div>
@@ -121,7 +121,7 @@ const ViewSingleFormModel = ({ onClose, formId }) => {
                                                         </div>
                                                     ))} */}
 
-                                                    <div>
+                                                    <div className='flex gap-3 pt-3'>
                                                         <input type="radio" name="option" /><br />
                                                         <input type="radio" name="option" />
                                                     </div>
@@ -131,7 +131,7 @@ const ViewSingleFormModel = ({ onClose, formId }) => {
                                             {field.fieldType === 'select' && (
                                                 <div className='flex flex-col'>
                                                     <label htmlFor={field.fieldName}>{field.fieldLabel}</label>
-                                                    <select id={field.fieldName} name={field.fieldName}>
+                                                    <select className='border mt-3 border-[#E0E0E0] shadow-md h-[44px] p-2 rounded-[4px]' id={field.fieldName} name={field.fieldName}>
                                                         {Array.isArray(field.options) && ((option, optionIndex) => (
                                                             <option key={optionIndex} value={option}>
                                                                 {option}
@@ -143,17 +143,17 @@ const ViewSingleFormModel = ({ onClose, formId }) => {
                                             {field.fieldType === 'date' && (
                                                 <div className='flex flex-col'>
                                                     <label htmlFor={field.fieldName}>{field.fieldLabel}</label>
-                                                    <input type="date" id={field.fieldName} name={field.fieldName} />
+                                                    <input className='border border-[#E0E0E0] h-[44px] rounded-[4px] p-2 mt-2 shadow-md' type="date" id={field.fieldName} name={field.fieldName} />
                                                 </div>
                                             )}
                                             {field.fieldType === 'file' && (
-                                                <div className='flex flex-col'>
+                                                <div className='flex flex-col gap-2'>
                                                     <label htmlFor={field.fieldName}>{field.fieldLabel}</label>
                                                     <input type="file" id={field.fieldName} name={field.fieldName} accept="image/*" />
                                                 </div>
                                             )}
                                             {field.fieldType === 'tandc' && (
-                                                <div className='flex flex-col'>
+                                                <div className='flex flex-col justify-start'>
                                                     <input type="checkbox" id={field.fieldName} name={field.fieldName} />
                                                     <label htmlFor={field.fieldName}>{field.fieldLabel}</label>
                                                 </div>

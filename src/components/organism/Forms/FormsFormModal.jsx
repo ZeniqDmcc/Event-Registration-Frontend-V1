@@ -272,7 +272,7 @@ const CreateFormModal = ({ onClose }) => {
         >
           {localSelectedOption || "Select an option..."}
           <svg
-            className="w-5 h-5 ml-2 text-gray-400 transform transition-transform"
+            className="w-5 h-5 ml-2 text-gray-400 transition-transform transform"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -290,7 +290,7 @@ const CreateFormModal = ({ onClose }) => {
           </svg>
         </div>
         {showOptions && (
-          <div className="options-list border flex flex-col gap-1 py-2 px-1 rounded-b-md mt-2">
+          <div className="flex flex-col gap-1 px-1 py-2 mt-2 border options-list rounded-b-md">
             {options.map((option, optionIndex) => (
               <div
                 className={`flex items-center justify-between option px-2 py-2 hover:bg-[#f0f0f0] rounded ${selectedOption === option ? "bg-[#f0f0f0]" : ""
@@ -298,7 +298,7 @@ const CreateFormModal = ({ onClose }) => {
                 key={optionIndex}
                 onClick={() => handleOptionClick(option)}
               >
-                <span key={optionIndex} className="option-label cursor-pointer">
+                <span key={optionIndex} className="cursor-pointer option-label">
                   {option}
                 </span>
                 <button
@@ -312,7 +312,7 @@ const CreateFormModal = ({ onClose }) => {
                 </button>
               </div>
             ))}
-            <div className="add-option flex border rounded justify-between p-2">
+            <div className="flex justify-between p-2 border rounded add-option">
               <input
                 className="outline-none"
                 type="text"
@@ -375,16 +375,20 @@ const CreateFormModal = ({ onClose }) => {
             <Field component={Input} inputType="text" name={fieldName} placeholder="Text Field" />
           )}
           {field.type === 'textarea' && (
-            <Field as="textarea" name={fieldName} placeholder="Text Area" />
+            <div className='w-full'>
+                <Field className="w-full border rounded-[4px] p-2 text-[14px] shadow-sm h-28" as="textarea" name={fieldName} placeholder="Add notes." />
+            </div>
           )}
           {field.type === 'checkbox' && (
-            <Field type="checkbox" name={fieldName} />
+            <div className='py-4'>
+              <Field type="checkbox" name={fieldName} />
+            </div>
           )}
           {field.type === 'radio' && (
-            <>
+            <div className='flex gap-5 py-4'>
               <Field type="radio" name={fieldName} value="option1" />
               <Field type="radio" name={fieldName} value="option2" />
-            </>
+            </div>
           )}
           {field.type === "select" && (
             <div>
@@ -418,7 +422,7 @@ const CreateFormModal = ({ onClose }) => {
           )}
 
           {field.type === 'date' && (
-            <Field type="date" name={fieldName} />
+            <Field component={Input} type="date" name={fieldName} />
           )}
           {field.type === 'file' && (
             <Field type="file" name={fieldName} />
@@ -434,8 +438,8 @@ const CreateFormModal = ({ onClose }) => {
   let fieldButtonStyle = "w-[48%] justify-left p-8"
 
   return (
-    <div className='fixed inset-0 flex flex-col justify-center items-center bg-black bg-opacity-50'>
-      <div className='bg-white rounded-lg p-6 w-[80%]'>
+    <div className='fixed inset-0 flex flex-col items-center justify-center bg-black bg-opacity-50'>
+      <div className='bg-white rounded-lg p-6 w-[80%] relative'>
         <div className='flex justify-between'>
           <div className="">
             <Heading level="2">Create/Edit Form</Heading>
@@ -455,14 +459,14 @@ const CreateFormModal = ({ onClose }) => {
                 onSubmit={handleSubmit}
               >
                 <Form>
-                  <div className='p-16 w-full'>
+                  <div className='w-full p-16'>
                     <div className="flex flex-col gap-8">
                       {formFields.map((field, index) => (
                         <div className="flex justify-start gap-3" key={index}>
                           <div>
                             {renderFormField(field, index, `select-${index}`)}
                           </div>
-                          <div className="flex gap-2 justify-end items-end pb-2">
+                          <div className="flex items-center justify-end gap-2 pb-2">
                             <button onClick={handleUnique}><img src='/formfield/unique.svg' /></button>
                             <button onClick={handleRequired}><img src='/formfield/required.svg' /></button>
                             <button onClick={() => removeFormField(index)}><img src='/formfield/minus.svg' /></button>
@@ -471,8 +475,9 @@ const CreateFormModal = ({ onClose }) => {
                         </div>
                       ))}
                     </div>
-
-                    <button type='submit'>save</button>
+                    <div className='absolute bottom-14 right-[5%] flex max-w-[400px]'>
+                    <Button customButtonStyle="w-full" variant="primary" type='submit'>save</Button>
+                    </div>
                     {/* <Button customButtonStyle="w-full h-[62px]" variant="primary">Save</Button> */}
                   </div>
                 </Form>

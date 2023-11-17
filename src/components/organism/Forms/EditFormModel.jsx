@@ -5,6 +5,7 @@ import { Field, Form, Formik, useFormik } from 'formik';
 import { useEffect, useState } from 'react';
 import Heading from '../../atoms/Heading';
 import FieldButton from '../../molecules/FieldButton';
+import Button from '@/components/atoms/Button';
 
 const EditFormModal = ({ formId, onClose }) => {
   const [formFields, setFormFields] = useState([]);
@@ -144,46 +145,27 @@ const EditFormModal = ({ formId, onClose }) => {
     );
   }
 
-// ////////////////////////////////////////////////// ///////////////////// //////////// //////////////////////
-
-
-
-
-
-
-
   const addFormField = (fieldType) => {
-    console.log("I clicking this addFormField Button and it's working.", fieldType)
-    // For existing fields, use the provided fieldType; for new fields, use the field.type
     const newFieldType = fieldType || (formFields.length > 0 ? formFields[formFields.length - 1].type : null);
-
     const newField = { type: newFieldType };
-
     setFormFields([...formFields, newField]);
 
-    // Rest of your logic...
-
-    // Example: For the 'rating' field type
     if (newFieldType === 'rating') {
       const fieldName = `rating-${formFields.length}`;
       initialValues[fieldName] = 0;
     }
 
-    // Example: For the 'checkbox' field type
     if (newFieldType === 'checkbox') {
       const fieldName = `checkbox-${formFields.length}`;
       initialValues[fieldName] = false;
 
-      // When adding a checkbox field, make sure it has options
       const checkboxField = {
         type: newFieldType,
-        options: [] // Initialize options for the checkbox field
+        options: [] 
       };
 
       setFormFields([...formFields, checkboxField]);
     }
-
-    // Rest of your logic...
 
     setEditMode((prevEditModes) => ({
       ...prevEditModes,
@@ -191,14 +173,11 @@ const EditFormModal = ({ formId, onClose }) => {
     }));
   };
 
-  // Remove Field
 
   const removeFormField = (index) => {
-    // Create a copy of the form fields array without the field to remove
     const updatedFormFields = [...form.formFields];
     updatedFormFields.splice(index, 1);
 
-    // Update the state with the modified form fields
     setform({ ...form, formFields: updatedFormFields });
   };
 
@@ -221,7 +200,6 @@ const EditFormModal = ({ formId, onClose }) => {
       if (requiredFields.has(fieldType)) {
         console.log(`Field type "${fieldType}" is now required.`);
       } else {
-        // Handle non-required case
         console.log(`Field type "${fieldType}" is not required.`);
       }
     });
@@ -318,7 +296,7 @@ const EditFormModal = ({ formId, onClose }) => {
         >
           {localSelectedOption || "Select an option..."}
           <svg
-            className="w-5 h-5 ml-2 text-gray-400 transform transition-transform"
+            className="w-5 h-5 ml-2 text-gray-400 transition-transform transform"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -336,7 +314,7 @@ const EditFormModal = ({ formId, onClose }) => {
           </svg>
         </div>
         {showOptions && (
-          <div className="options-list border flex flex-col gap-1 py-2 px-1 rounded-b-md mt-2">
+          <div className="flex flex-col gap-1 px-1 py-2 mt-2 border options-list rounded-b-md">
             {options.map((option, optionIndex) => (
               <div
                 className={`flex items-center justify-between option px-2 py-2 hover:bg-[#f0f0f0] rounded ${selectedOption === option ? "bg-[#f0f0f0]" : ""
@@ -344,7 +322,7 @@ const EditFormModal = ({ formId, onClose }) => {
                 key={optionIndex}
                 onClick={() => handleOptionClick(option)}
               >
-                <span key={optionIndex} className="option-label cursor-pointer">
+                <span key={optionIndex} className="cursor-pointer option-label">
                   {option}
                 </span>
                 <button
@@ -359,7 +337,7 @@ const EditFormModal = ({ formId, onClose }) => {
                 </button>
               </div>
             ))}
-            <div className="add-option flex border rounded justify-between p-2">
+            <div className="flex justify-between p-2 border rounded add-option">
               <Input
                 className="outline-none"
                 type="text"
@@ -392,8 +370,6 @@ const EditFormModal = ({ formId, onClose }) => {
     const fieldIdentifier = `field-${index}`;
     const fieldName = `${field.type}-${fieldIdentifier}`;
     const fieldLabel = fieldLabels[fieldIdentifier] || 'Label';
-    // const options = selectFieldOptions[fieldName] || [];
-    // const initialRating = formik.values[fieldName] || 0;
 
     return (
       <div key={index} className='flex flex-col gap-2'>
@@ -481,7 +457,7 @@ const EditFormModal = ({ formId, onClose }) => {
   let fieldButtonStyle = "w-[48%] justify-left p-8"
 
   return (
-    <div className='fixed inset-0 flex flex-col justify-center items-center bg-black bg-opacity-50'>
+    <div className='fixed inset-0 flex flex-col items-center justify-center bg-black bg-opacity-50'>
       <div className='bg-white rounded-lg p-6 w-[80%]'>
         <div className='flex justify-between'>
           <div className="">
@@ -506,40 +482,41 @@ const EditFormModal = ({ formId, onClose }) => {
                 onSubmit={handleSubmit}
               >
                 <Form>
-                  <div className='p-16 w-full'>
+                  <div className='w-full p-16'>
                     <div className="flex flex-col gap-8">
                       {form && [
                         ...form.formFields.map((field, index) => (
-                          <div key={`formField-${field.fieldType}-${index}`}>
+                          <div className='flex' key={`formField-${field.fieldType}-${index}`}>
                             {field.fieldType === 'text' && (
-                              <div>
+                              <div className='flex flex-col gap-3'>
                                 <label htmlFor={field.fieldName}>{field.fieldLabel}</label>
                                 <Input type="text" id={field.fieldName} name={field.fieldName} />
                               </div>
                             )}
                             {field.fieldType === 'textarea' && (
-                              <div>
+                              <div className='flex flex-col gap-3'>
                                 <label htmlFor={field.fieldName}>{field.fieldLabel}</label>
                                 <textarea id={field.fieldName} name={field.fieldName} />
                               </div>
                             )}
                             {field.fieldType === 'checkbox' && (
-                              <div>
-                                <Input type="checkbox" id={field.fieldName} name={field.fieldName} />
+                              <div className='flex items-center gap-3'>
+                                <Input className="h-[20px]" type="checkbox" id={field.fieldName} name={field.fieldName} />
                                 <label htmlFor={field.fieldName}>{field.fieldLabel}</label>
                               </div>
                             )}
 
                             {field.fieldType === 'radio' && field.options && (
-                              <div>
-                                <label>{field.fieldLabel}</label>
+                              <div className='flex flex-col'> 
+                                <label className='mb-2'>{field.fieldLabel}</label>
                                 {field.options.map((option, optionIndex) => (
-                                  <div key={optionIndex}>
+                                  <div className='flex items-center gap-2' key={optionIndex}>
                                     <Input
                                       type="radio"
                                       id={`${field.fieldName}_${optionIndex}`}
                                       name={field.fieldName}
                                       value={option}
+                                      className="h-[20px]"
                                     />
                                     <label htmlFor={`${field.fieldName}_${optionIndex}`}>{option}</label>
                                   </div>
@@ -551,7 +528,7 @@ const EditFormModal = ({ formId, onClose }) => {
                               <div>
                                 <CustomDropdown
                                   fieldName={field.fieldName}
-                                  options={field.options || []}  // Use existing options if available
+                                  options={field.options || []} 
                                   selectedOption={selectedOptions[field.fieldName]}
                                   onSelect={(selectedOption) => {
                                     setSelectedOptions((prevSelectedOptions) => ({
@@ -579,57 +556,56 @@ const EditFormModal = ({ formId, onClose }) => {
                             )}
 
                             {field.fieldType === 'date' && (
-                              <div>
+                              <div className='flex flex-col gap-3'>
                                 <label htmlFor={field.fieldName}>{field.fieldLabel}</label>
                                 <Input type="date" id={field.fieldName} name={field.fieldName} />
                               </div>
                             )}
 
                             {field.fieldType === 'file' && (
-                              <div>
+                              <div className='flex flex-col gap-3'>
                                 <label htmlFor={field.fieldName}>{field.fieldLabel}</label>
-                                <Input type="file" id={field.fieldName} name={field.fieldName} accept="image/*" />
+                                <Input className="inline-block" type="file" id={field.fieldName} name={field.fieldName} accept="image/*" />
                               </div>
                             )}
 
                             {field.fieldType === 'tandc' && (
-                              <div>
-                                <label htmlFor={field.fieldName}>{field.fieldLabel}</label>
+                              <div className='flex items-start'>
+                                <label className='block' htmlFor={field.fieldName}>{field.fieldLabel}</label>
                                 <Input type="checkbox" id={field.fieldName} name={field.fieldName} />
                               </div>
                             )}
 
-                            <div className="flex gap-2 justify-end items-end pb-2">
+                            <div className="flex items-end justify-end gap-2 pb-2">
                               <button type="button" onClick={handleUnique}><img src='/formfield/unique.svg' /></button>
                               <button type="button" onClick={handleRequired}><img src='/formfield/required.svg' /></button>
                               <button type="button" onClick={() => removeFormField(index)}><img src='/formfield/minus.svg' /></button>
                               <button type="button" onClick={() => addFormField(field.fieldType)}>
-                                11111 <img src='/formfield/addfield.svg' />
+                                <img src='/formfield/addfield.svg' />
                               </button>
                             </div>
                           </div>
                         )),
                         ...formFields.map((field, index) => (
-                          <div className="flex justify-start 5555 gap-3" key={index}>
+                          <div className="flex justify-start gap-3 5555" key={index}>
                             <div>
                               {renderFormField(field, index, `select-${index}`)}
                               {field.fieldName}
                             </div>
 
-                            <div className="flex gap-2 justify-end items-end pb-2">
+                            <div className="flex items-end justify-end gap-2 pb-2">
                               <button type="button" onClick={handleUnique}><img src='/formfield/unique.svg' /></button>
                               <button type="button" onClick={handleRequired}><img src='/formfield/required.svg' /></button>
                               <button type="button" onClick={() => removeFormField(index)}><img src='/formfield/minus.svg' /></button>
                               <button type="button" onClick={() => addFormField(field.type)}>
-                                222222 <img src='/formfield/addfield.svg' />
+                                <img src='/formfield/addfield.svg' />
                               </button>
                             </div>
                           </div>
                         ))
                       ]}
                     </div>
-                    <button type='submit'>save</button>
-                    {/* <Button customButtonStyle="w-full h-[62px]" variant="primary">Save</Button> */}
+                    <Button customButtonStyle="mt-10 w-[150px]" variant="primary" type='submit'>save</Button>
                   </div>
                 </Form>
               </Formik>
