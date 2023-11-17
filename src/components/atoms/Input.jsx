@@ -17,14 +17,14 @@ const Input = ({ inputType, field, ...restProps }) => {
       break;
     case 'checkbox':
     case 'radio':
-    case 'file':
-      inputStyles = 'border border-gray-500 rounded-md bg-white shadow-md p-[4px]';
+      inputStyles = 'border border-[#1475DC] rounded-m p-[4px]';
       break;
     default:
       // Default styles for other input types
       inputStyles = commonStyles;
       break;
   }
+  
 
   return <input className={inputStyles} type={inputType || 'text'} {...field} {...restProps} />;
 };
