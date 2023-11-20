@@ -64,7 +64,7 @@ const ViewSigngleEventModel = ({ onClose, eventId }) => {
   };
 
   return (
-    <div className='fixed inset-0 flex justify-center items-center bg-white z-10'>
+    <div className='fixed inset-0 z-10 flex items-center justify-center bg-white'>
       <div className='bg-white rounded-lg px-6 w-[80%] h-[80vh] overflow-y-scroll'>
         {event ? (
           <div key={event.eventId}>
