@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-function Heading({ level, children }) {
+function Heading({ level, children, className }) {
 
     const HeadingTag = `h${level}`
 
@@ -27,7 +27,7 @@ function Heading({ level, children }) {
     const headingStyles = getHeadingStyles(level)
 
   return (
-    <HeadingTag className={headingStyles}>{children}</HeadingTag>
+    <HeadingTag className={`${headingStyles} ${className}`}>{children}</HeadingTag>
   )
 }
 

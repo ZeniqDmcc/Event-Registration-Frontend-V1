@@ -6,6 +6,7 @@ import axios from 'axios';
 import { useState } from "react";
 import Input from "../../atoms/Input";
 import Button from "../../atoms/Button";
+import FormList from "../FormList";
 
 const CreateNewEvent = ({ handleSubmit }) => {
 
@@ -199,8 +200,7 @@ const CreateNewEvent = ({ handleSubmit }) => {
                                 <ErrorMessage className={errorMessage} name="banner" component="div" />
                             </div>
                             {/* ... (other form fields) ... */}
-
-                            <div className="mt-5 flex justify-between">
+                            <div className="flex justify-between mt-5">
                                 {/* <Button
                                     customButtonStyle="w-[48%]"
                                     inputType="submit"

@@ -10,6 +10,7 @@ import * as Yup from 'yup';
 import axios from 'axios';
 import Button from '@/components/atoms/Button';
 import { CameraIcon } from '@heroicons/react/solid';
+import FormList from '../FormList';
 
 
 const EventFormModal = ({ onClose }) => {
@@ -34,6 +35,7 @@ const EventFormModal = ({ onClose }) => {
     },
     logo: null,
     banner: null,
+    formId: '',
   };
 
   const handleSubmit = async (values, { setSubmitting, setErrors }) => {
@@ -58,6 +60,8 @@ const EventFormModal = ({ onClose }) => {
       if (values.banner instanceof File) {
         formData.append('banner', values.banner);
       }
+
+      formData.append('formId', values.formId);
 
       const token = localStorage.getItem('access_token');
 
@@ -101,6 +105,7 @@ const EventFormModal = ({ onClose }) => {
     }),
     logo: Yup.mixed().required('Logo is required'),
     banner: Yup.mixed().required('Banner is required'),
+    formId: Yup.string(),
   });
 
   let inputOuter = "flex gap-1 flex-col w-[48%]"
@@ -108,8 +113,8 @@ const EventFormModal = ({ onClose }) => {
   let errorMessage = "text-red-600 font-[500] text-[12px]"
 
   return (
-    <div className='fixed inset-0 flex justify-center items-center bg-white'>
-      <div className='bg-white rounded-lg p-6 w-[80%]'>
+    <div className='fixed inset-0 flex items-center justify-center bg-white'>
+      <div className='rounded-lg p-6 w-[80%] overflow-scroll h-[80vh]'>
         <div className='flex justify-between'>
           <Heading level='2'>Create/Edit Event</Heading>
           <button className='text-gray-500 hover:text-gray-700' onClick={onClose}>
@@ -123,7 +128,7 @@ const EventFormModal = ({ onClose }) => {
 
               <div className='bg-[#E0E0E0] flex-col ixb-flex-both w-[12%]'>
                 {logoFile ? (
-                  <img src={URL.createObjectURL(logoFile)} alt="Logo" className="w-full h-full object-cover" />
+                  <img src={URL.createObjectURL(logoFile)} alt="Logo" className="object-cover w-full h-full" />
                 ) : (
                   <div className='bg-[#E9E9E9] w-full flex items-center justify-center h-[100vh]'>
                     <Heading level="5">Logo</Heading>
@@ -134,7 +139,7 @@ const EventFormModal = ({ onClose }) => {
 
               <div className='bg-[#E0E0E0] flex-col ixb-flex-both w-[88%]'>
                 {bannerFile ? (
-                  <img src={URL.createObjectURL(bannerFile)} alt="Banner" className="w-full h-full object-cover" />
+                  <img src={URL.createObjectURL(bannerFile)} alt="Banner" className="object-cover w-full h-full" />
                 ) : (
                   <Heading level="5">Banner</Heading>
                 )}
@@ -142,7 +147,6 @@ const EventFormModal = ({ onClose }) => {
 
             </div>
             {/* Form Content Area */}
-            <div className="bg-white h-[63vh] ixb-flex-both">Show Form Content Here...</div>
             <Footer />
           </div>
           {/* Form Fields Area */}
@@ -182,7 +186,6 @@ const EventFormModal = ({ onClose }) => {
                           <ErrorMessage name="endDate" component="div" />
                         </div>
                       </div>
-
                       <div className="flex flex-col w-full gap-2">
                         <label htmlFor="description">Description</label>
                         <Field
@@ -223,7 +226,7 @@ const EventFormModal = ({ onClose }) => {
                         </div>
                       </div>
 
-                      <div className="py-3 flex flex-col gap-5">
+                      <div className="flex flex-col gap-5 py-3">
                         <div className="">
                           <label className='items-center gap-2' htmlFor="logo">Logo</label>
                           {/* <input
@@ -276,8 +279,8 @@ const EventFormModal = ({ onClose }) => {
                           <ErrorMessage name="banner" component="div" />
                         </div>
                       </div>
-
-                      {/* <div className="flex justify-around items-center py-3">
+                      <FormList />
+                      {/* <div className="flex items-center justify-around py-3">
                         <div className="text-center">
                           <label className='flex flex-col items-center gap-2' htmlFor="logo">Logo
                             <CameraIcon className="w-[50px] h-[50px]" />
@@ -295,8 +298,8 @@ const EventFormModal = ({ onClose }) => {
                           <ErrorMessage name="logo" component="div" />
                         </div>
 
-                        <div className="text-center flex">
-                          <label className='flex flex-col gap-3 items-center' htmlFor="banner">Banner
+                        <div className="flex text-center">
+                          <label className='flex flex-col items-center gap-3' htmlFor="banner">Banner
                             <svg xmlns="http://www.w3.org/2000/svg" height="40px" width='40px' viewBox="0 0 512 512"><path d="M0 96C0 60.7 28.7 32 64 32H448c35.3 0 64 28.7 64 64V416c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V96zM323.8 202.5c-4.5-6.6-11.9-10.5-19.8-10.5s-15.4 3.9-19.8 10.5l-87 127.6L170.7 297c-4.6-5.7-11.5-9-18.7-9s-14.2 3.3-18.7 9l-64 80c-5.8 7.2-6.9 17.1-2.9 25.4s12.4 13.6 21.6 13.6h96 32H424c8.9 0 17.1-4.9 21.2-12.8s3.6-17.4-1.4-24.7l-120-176zM112 192a48 48 0 1 0 0-96 48 48 0 1 0 0 96z" /></svg>
                           
                           <input

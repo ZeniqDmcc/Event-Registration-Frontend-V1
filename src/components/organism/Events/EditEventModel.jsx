@@ -4,6 +4,7 @@ import { XIcon } from "@heroicons/react/solid";
 import Heading from "@/components/atoms/Heading";
 import Input from "@/components/atoms/Input";
 import Button from "@/components/atoms/Button";
+import FormList from "../FormList";
 
 const EditEventModel = ({ onClose, eventId }) => {
   const [eventData, seteventData] = useState({
@@ -33,6 +34,8 @@ const EditEventModel = ({ onClose, eventId }) => {
             headers: headers,
           }
         );
+
+          console.log("Event-ID:", response)
 
         if (response.data.status === true) {
           seteventData(response.data.data);
@@ -88,8 +91,7 @@ const EditEventModel = ({ onClose, eventId }) => {
       );
 
       if (response.data.status === true) {
-        // Event successfully updated, you can update the UI or take any necessary action
-        onClose(); // Close the edit modal after successful edit
+        onClose()
       } else {
         console.error("Error updating event:", response.data.error);
       }
@@ -102,8 +104,8 @@ const EditEventModel = ({ onClose, eventId }) => {
 
   return (
     <div className="fixed inset-0 flex items-center justify-center overflow-scroll bg-white">
-      <div className="bg-white rounded-lg p-6 w-[60%] mt-36 pb-20">
-        <div className="flex justify-between mb-4">
+      <div className="bg-white rounded-lg p-6 w-[60%] pb-20">
+        <div className="flex justify-between mb-4  mt-[600px]">
           <Heading level="2">Edit Event</Heading>
           <button
             className="text-gray-500 hover:text-gray-700"
@@ -115,6 +117,7 @@ const EditEventModel = ({ onClose, eventId }) => {
 
         <form onSubmit={handleEditSubmit}>
           <div className="px-10 py-20 border shadow-md">
+            <FormList />
             <div className="w-[80%] flex flex-col gap-8 mx-auto">
               <div className={fieldOuter}>
                 <label>Event Name</label>
