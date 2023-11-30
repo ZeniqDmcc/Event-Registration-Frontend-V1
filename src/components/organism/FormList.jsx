@@ -2,16 +2,16 @@ import Axios from "axios";
 import { useEffect, useState } from "react";
 import Button from "../atoms/Button";
 
-function FormList() {
+function FormList({ onFormSelect }) {
   const [formData, setFormData] = useState([]);
-  const [selectedFormId, setSelectedFormId] = useState(undefined);
-  const [show, setShow] = useState(false)
+  const [selectedFormId, setSelectedFormId] = useState();
+  const [show, setShow] = useState(false);
 
   useEffect(() => {
-    fetchData();
+    fetchFormID();
   }, []);
 
-  const fetchData = async () => {
+  const fetchFormID = async () => {
     try {
       const token = localStorage.getItem("access_token");
       const headers = {
@@ -36,59 +36,34 @@ function FormList() {
   };
 
   const openForm = () => {
-    setShow(true)
-  }
-
-  const handleFormSelect = async (eventId) => {
-    try {
-      const token = localStorage.getItem("access_token");
-      const headers = {
-        Authorization: `Bearer ${token}`,
-      };
-
-      const response = await Axios.put(
-        `http://localhost:9003/admin/event/fetchAllEvents/${eventId}`,
-        { formId: selectedFormId },
-        {
-          headers: headers,
-        }
-      );
-
-      if (response.data.status === true) {
-        console.log("Event updated successfully");
-      } else {
-        console.error("Error updating event:", response.data.message);
-      }
-    } catch (error) {
-      console.error("Error updating event:", error);
-    }
-
-    setSelectedFormId(selectedFormId);
-
+    setShow(true);
   };
 
   return (
     <div className="flex flex-col items-center justify-center bg-white">
-      <Button customButtonStyle="w-full" onClick={openForm} variant="primary">
+      <Button customButtonStyle="w-full" type="button" onClick={openForm} variant="primary">
         Assign form to this event
       </Button>
 
-      { show && (
-        <select
-        className="w-full p-2 rounded-[4px] h-[40px] mt-4 border-2"
-        onChange={(e) => setSelectedFormId(e.target.value)}
-        value={selectedFormId || ""} 
-        onClick={openForm}
-      >
-        <option value="" disabled hidden>
-          List...
-        </option>
-        {formData.map((item) => (
-          <option key={item.formId} value={item.formId}>
-            {item.formId}
+      {show && (
+        <><select
+          className="w-full p-2 rounded-[4px] h-[40px] mt-4 border-2"
+          onChange={(e) => {
+            setSelectedFormId(e.target.value);
+          }}
+
+          onClick={openForm}
+        >
+          <option value="" disabled hidden>
+            List...
           </option>
-        ))}
-      </select>
+          {formData.map((item) => (
+            <option key={item.formId} value={item.formId}>
+              {item.formId}
+            </option>
+          ))}
+        </select>
+        </>
       )}
     </div>
   );

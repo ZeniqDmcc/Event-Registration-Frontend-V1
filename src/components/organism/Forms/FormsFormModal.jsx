@@ -8,12 +8,12 @@ import FieldButton from '../../molecules/FieldButton';
 import axios from 'axios';
 
 const CreateFormModal = ({ onClose }) => {
-  const [formFields, setFormFields] = useState([]);
-  const [editMode, setEditMode] = useState({});
-  const [fieldLabels, setFieldLabels] = useState({});
-  const [selectFieldOptions, setSelectFieldOptions] = useState({});
-  const [selectedOptions, setSelectedOptions] = useState({});
-  const [optionsList, setOptionsList] = useState([]);
+  const [formFields, setFormFields] = useState([])
+  const [editMode, setEditMode] = useState({})
+  const [fieldLabels, setFieldLabels] = useState({})
+  const [selectFieldOptions, setSelectFieldOptions] = useState({})
+  const [selectedOptions, setSelectedOptions] = useState({})
+  const [optionsList, setOptionsList] = useState([])
 
   let initialValues = {}
 
