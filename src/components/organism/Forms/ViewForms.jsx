@@ -114,9 +114,6 @@ const ViewFormsData = () => {
     }
   };
   
-  
-
-
   useEffect(() => {
     fetchForms()
   }, [])

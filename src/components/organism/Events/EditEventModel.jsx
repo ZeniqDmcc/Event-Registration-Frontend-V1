@@ -4,9 +4,11 @@ import { XIcon } from "@heroicons/react/solid";
 import Heading from "@/components/atoms/Heading";
 import Input from "@/components/atoms/Input";
 import Button from "@/components/atoms/Button";
-import FormList from "../FormList";
 
 const EditEventModel = ({ onClose, eventId }) => {
+  const [getID, setGetID] = useState()
+  const [formDataID, setFormDataID] = useState([])
+
   const [eventData, seteventData] = useState({
     eventName: "",
     eventUrl: "",
@@ -16,6 +18,7 @@ const EditEventModel = ({ onClose, eventId }) => {
     endDate: "",
     logo: "",
     banner: "",
+    formId: getID,
   });
 
   useEffect(() => {
@@ -35,7 +38,7 @@ const EditEventModel = ({ onClose, eventId }) => {
           }
         );
 
-          console.log("Event-ID:", response)
+        console.log("Event-ID:", response);
 
         if (response.data.status === true) {
           seteventData(response.data.data);
@@ -46,7 +49,6 @@ const EditEventModel = ({ onClose, eventId }) => {
         console.error("Error fetching event:", error);
       }
     };
-
     fetchEvent();
   }, [eventId]);
 
@@ -55,6 +57,13 @@ const EditEventModel = ({ onClose, eventId }) => {
     seteventData((preveventData) => ({
       ...preveventData,
       [name]: value,
+    }));
+  };
+
+  const handleFormSelect = (selectedFormId) => {
+    seteventData((prevEventData) => ({
+      ...prevEventData,
+      formId: selectedFormId,
     }));
   };
 
@@ -76,6 +85,12 @@ const EditEventModel = ({ onClose, eventId }) => {
   const handleEditSubmit = async (e) => {
     e.preventDefault();
 
+    const formattedEventData = {
+      ...eventData,
+      startDate: new Date(eventData.startDate).toISOString().split('T')[0],
+      endDate: new Date(eventData.endDate).toISOString().split('T')[0],
+    };
+
     try {
       const token = localStorage.getItem("access_token");
       const headers = {
@@ -91,7 +106,7 @@ const EditEventModel = ({ onClose, eventId }) => {
       );
 
       if (response.data.status === true) {
-        onClose()
+        onClose();
       } else {
         console.error("Error updating event:", response.data.error);
       }
@@ -100,12 +115,41 @@ const EditEventModel = ({ onClose, eventId }) => {
     }
   };
 
-  const fieldOuter = "flex flex-col gap-3"
+  const fieldOuter = "flex flex-col gap-3";
+
+  useEffect(() => {
+    const fetchFormID = async () => {
+      try {
+        const token = localStorage.getItem("access_token");
+        const headers = {
+          Authorization: `Bearer ${token}`,
+        };
+
+        const response = await axios.get(
+          "http://localhost:9003/admin/form/allForms",
+          {
+            headers: headers,
+          }
+        );
+
+        if (response.data.status === true) {
+          setFormDataID(response.data.data);
+        } else {
+          console.error("Error fetching forms:", response.data.message);
+        }
+      } catch (error) {
+        console.error("Error fetching forms:", error);
+      }
+    };
+
+    fetchFormID();
+  }, []);
+
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center overflow-scroll bg-white">
-      <div className="bg-white rounded-lg p-6 w-[60%] pb-20">
-        <div className="flex justify-between mb-4  mt-[600px]">
+    <div className="fixed inset-0 flex items-center justify-center bg-white">
+      <div className="rounded-lg p-6 w-[80%] overflow-scroll h-[80vh]">
+        <div className="flex justify-between mb-4">
           <Heading level="2">Edit Event</Heading>
           <button
             className="text-gray-500 hover:text-gray-700"
@@ -117,8 +161,22 @@ const EditEventModel = ({ onClose, eventId }) => {
 
         <form onSubmit={handleEditSubmit}>
           <div className="px-10 py-20 border shadow-md">
-            <FormList />
-            <div className="w-[80%] flex flex-col gap-8 mx-auto">
+            <div className="w-[80%] flex flex-col gap-8 mx-auto">              <div className={fieldOuter}>
+                <label>Select form</label>
+                <select
+                  value={eventData.formId}
+                  onChange={(e) => handleFormSelect(e.target.value)}
+                >
+                  <option value="" disabled>
+                    Select Form...
+                  </option>
+                  {formDataID.map((item) => (
+                    <option key={item.formId} value={item.formId}>
+                      {item.formId}
+                    </option>
+                  ))}
+                </select>
+              </div>
               <div className={fieldOuter}>
                 <label>Event Name</label>
                 <Input
@@ -201,7 +259,9 @@ const EditEventModel = ({ onClose, eventId }) => {
                   />
                 )}
               </div>
-              <Button variant="primary" type="submit">Save</Button>
+              <Button variant="primary" type="submit">
+                Save
+              </Button>
             </div>
           </div>
         </form>

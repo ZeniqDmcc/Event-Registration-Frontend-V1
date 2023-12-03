@@ -47,7 +47,6 @@ const ViewEvents = () => {
             });
 
             if (response.data.status === true) {
-                // Event successfully deleted, you can update the UI or fetch the events again to refresh the list
                 fetchEvents();
             } else {
                 console.error('Error deleting event:', response.data.error);
