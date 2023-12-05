@@ -7,6 +7,8 @@ import Auth from '../../auth/Auth';
 import EventHover from './eventHover';
 import ViewSigngleEventModel from './ViewSigngleEventModel';
 import EditEventModel from './EditEventModel';
+import CreateNewEvent from './CreateNewEvent';
+import CreateFormModal from '../Forms/FormsFormModal';
 
 const ViewEvents = () => {
     const [data, setData] = useState([]);
@@ -86,14 +88,14 @@ const ViewEvents = () => {
                         <EventHover
                             Delete={() => handleDelete(event.eventId)}
                             ViewEvent={() => handleEventClick(event.eventId)}
-                            EditEvent={() => handleEditEvent(event.eventId)} // Add this line
+                            EditEvent={() => handleEditEvent(event.eventId)} 
                             eventId={event.eventId}
                         />
-                        {isCreateEventModalOpen && <EventFormModal onClose={() => setIsCreateEventModalOpen(false)} />}
-                        {isSingleEventView && <ViewSigngleEventModel onClose={() => setIsSingleEventView(false)} eventId={selectedEventId} />}
-                        {isEditEventView && <EditEventModel onClose={() => setIsEditEventView(false)} eventId={selectedEventId} />}
                     </div>
                 ))}
+                {isCreateEventModalOpen && <EventFormModal onClose={() => setIsCreateEventModalOpen(false)} />}
+                {isSingleEventView && <ViewSigngleEventModel onClose={() => setIsSingleEventView(false)} eventId={selectedEventId} />}
+                {isEditEventView && <EditEventModel onClose={() => setIsEditEventView(false)} eventId={selectedEventId} />}
             </div>
         </div>
     )

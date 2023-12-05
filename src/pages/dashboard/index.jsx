@@ -58,7 +58,7 @@ const Dashboard = () => {
             {/* Events Data */}
             <div className='mt-[49px]'>
               <Heading level='3'>All Events</Heading>
-                <ViewEvents />
+              <ViewEvents />
             </div>
           </div>
         )}

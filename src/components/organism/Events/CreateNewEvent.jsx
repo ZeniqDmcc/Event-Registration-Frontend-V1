@@ -6,7 +6,7 @@ import axios from 'axios';
 import { useState } from "react";
 import Input from "../../atoms/Input";
 import Button from "../../atoms/Button";
-import FormList from "../FormList";
+// import FormList from "../FormList";
 
 const CreateNewEvent = ({ handleSubmit }) => {
 
@@ -108,7 +108,7 @@ const CreateNewEvent = ({ handleSubmit }) => {
     let errorMessage = "text-red-600 font-[500] text-[12px]"
 
     return (
-        <div>
+        <div className="bg-red-800 w-[500px]">
             <Formik initialValues={initialValues} validationSchema={eventSchema} onSubmit={handleSubmit}>
                 {({ setFieldValue }) => (
                     <Form>
@@ -219,4 +219,4 @@ const CreateNewEvent = ({ handleSubmit }) => {
     )
 };
 
-export default CreateNewEvent;
+export default Auth(CreateNewEvent);

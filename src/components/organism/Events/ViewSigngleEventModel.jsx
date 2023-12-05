@@ -139,7 +139,8 @@ const ViewSigngleEventModel = ({ onClose, eventId }) => {
                   >
                     {event.eventName}
                   </Heading>
-                  <p className="pb-10 leading-[28px] text-xl font-light tracking-[1px]">
+                  <p className="pb-10 leading-[28px] text-xl font-lCreate New Event
+ight tracking-[1px]">
                     {event.description}
                   </p>
                 </div>
