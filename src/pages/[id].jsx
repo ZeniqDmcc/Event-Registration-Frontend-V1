@@ -1,22 +1,25 @@
-import React, { useEffect, useState } from "react";
+"use client"
+// pages/dashboard/events/edit/EditEventPage.jsx
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
+import axios from 'axios';
 import { XIcon } from "@heroicons/react/solid";
-import axios from "axios";
-import { useRouter } from "next/router";
 import Heading from "@/components/atoms/Heading";
 import Footer from "@/components/template/Footer";
 import Button from "@/components/atoms/Button";
 import Paragraph from "@/components/atoms/paragraph";
 import Input from "@/components/atoms/Input";
 
-const ViewSigngleEventModel = ({ onClose, eventId }) => {
+const EventDetailsForUser = ({onClose}) => {
   const router = useRouter();
+  const { id } = router.query;
   const [event, setEvent] = useState(null);
   const [formID, setFormID] = useState();
   const [form, setForm] = useState();
-
+ 
   useEffect(() => {
-    if (!eventId) return;
-    console.log(eventId);
+    if (!id) return;
+    console.log(id);
 
     const fetchEvent = async () => {
       try {
@@ -26,7 +29,7 @@ const ViewSigngleEventModel = ({ onClose, eventId }) => {
         };
 
         const response = await axios.get(
-          `http://localhost:9003/admin/event/${eventId}`,
+          `http://localhost:9003/admin/event/${id}`,
           {
             headers: headers,
           }
@@ -44,7 +47,7 @@ const ViewSigngleEventModel = ({ onClose, eventId }) => {
     };
 
     fetchEvent();
-  }, [eventId]);
+  }, [id]);
 
   useEffect(() => {
     const fetchform = async () => {
@@ -77,36 +80,6 @@ const ViewSigngleEventModel = ({ onClose, eventId }) => {
 
     fetchform();
   }, [formID]);
-
-  console.log("Form ID", formID);
-
-  const handleDelete = async (eventId) => {
-    try {
-      const token = localStorage.getItem("access_token");
-      const headers = {
-        Authorization: `Bearer ${token}`,
-      };
-
-      const response = await axios.delete(
-        `http://localhost:9003/admin/event/${eventId}`,
-        {
-          headers: headers,
-        }
-      );
-
-      if (response.data.status === true) {
-        router.push("/dashboard/events");
-      } else {
-        console.error("Error deleting event:", response.data.error);
-      }
-    } catch (error) {
-      console.error("Error deleting event:", error);
-    }
-  };
-
-  const handleEdit = () => {
-    router.push(`/dashboard/events/editevent/${eventId}`);
-  };
 
   return (
     <div className="fixed inset-0 z-10 flex items-center justify-center bg-white">
@@ -278,11 +251,6 @@ ight tracking-[1px]">
                         </div>
                       </form>
                     </div>
-                    {/* Buttons */}
-                    {/* <div className="flex gap-4">
-                            <Button variant="primary" onClick={handleEdit}>Edit</Button>
-                            <Button variant="secondary" onClick={() => handleDelete(formId)}>Delete</Button>
-                        </div> */}
                   </div>
                 ) : (
                   <div>Loading...</div>
@@ -292,19 +260,6 @@ ight tracking-[1px]">
                 <Footer />
               </div>
             </div>
-
-            {/* Buttons */}
-            <div className="flex gap-4">
-              <Button variant="primary" onClick={handleEdit}>
-                Edit
-              </Button>
-              <Button
-                variant="secondary"
-                onClick={() => handleDelete(event.eventId)}
-              >
-                Delete
-              </Button>
-            </div>
           </div>
         ) : (
           <div>Loading...</div>
@@ -312,6 +267,7 @@ ight tracking-[1px]">
       </div>
     </div>
   );
+
 };
 
-export default ViewSigngleEventModel;
+export default EventDetailsForUser;

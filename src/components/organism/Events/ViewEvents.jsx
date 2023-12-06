@@ -9,6 +9,7 @@ import ViewSigngleEventModel from './ViewSigngleEventModel';
 import EditEventModel from './EditEventModel';
 import CreateNewEvent from './CreateNewEvent';
 import CreateFormModal from '../Forms/FormsFormModal';
+import Heading from '@/components/atoms/Heading';
 
 const ViewEvents = () => {
     const [data, setData] = useState([]);
@@ -16,6 +17,7 @@ const ViewEvents = () => {
     const [isSingleEventView, setIsSingleEventView] = useState(false)
     const [isEditEventView, setIsEditEventView] = useState(false)
     const [selectedEventId, setSelectedEventId] = useState(null)
+    const [visibility, setVisibility] = useState(false)
 
     const fetchEvents = async () => {
         try {
@@ -65,8 +67,39 @@ const ViewEvents = () => {
 
     const handleEditEvent = (eventId) => {
         setSelectedEventId(eventId);
-        setIsEditEventView(true); // Add this state for editing
+        setIsEditEventView(true);
     }
+
+    const handlePublish = async (eventId) => {
+        try {
+            const token = localStorage.getItem('access_token');
+            const headers = {
+                Authorization: `Bearer ${token}`,
+            };
+    
+            // Update the visibility state based on the current state
+            const newVisibilityState = !visibility;
+    
+            // Log the constructed URL for debugging
+            const url = `http://localhost:9003/admin/event/${eventId}/visibility/${newVisibilityState}`;
+            console.log('Publish URL:', url);
+    
+            const response = await axios.put(url, null, { headers });
+    
+            if (response.data.status === true) {
+                console.log('Event published successfully:', response.data.data);
+    
+                // Update the visibility state based on the new state
+                setVisibility(newVisibilityState);
+    
+                fetchEvents(); // Update the event list
+            } else {
+                console.error('Error publishing event:', response.data.error);
+            }
+        } catch (error) {
+            console.error('Error publishing event:', error);
+        }
+    };
 
     useEffect(() => {
         fetchEvents()
@@ -81,16 +114,26 @@ const ViewEvents = () => {
                 {data.map((event) => (
                     <div id="eventbg" className={box} key={event.eventId}>
                         <Link href={`/dashboard/events/eventdetails/${event.eventId}`}>
-                            <>
+                            <Heading className='bg-white px-16' level='3'>
                                 {event.eventId}
-                            </>
+                            </Heading>
                         </Link>
-                        <EventHover
+                        {/* <EventHover
                             Delete={() => handleDelete(event.eventId)}
                             ViewEvent={() => handleEventClick(event.eventId)}
                             EditEvent={() => handleEditEvent(event.eventId)} 
                             eventId={event.eventId}
+                            Publish={() => handlePublish(event.eventId)}
+                        /> */}
+                        <EventHover
+                            Delete={() => handleDelete(event.eventId)}
+                            ViewEvent={() => handleEventClick(event.eventId)}
+                            EditEvent={() => handleEditEvent(event.eventId)}
+                            eventId={event.eventId}
+                            Publish={() => handlePublish(event.eventId)}
+                            isVisible={visibility}
                         />
+
                     </div>
                 ))}
                 {isCreateEventModalOpen && <EventFormModal onClose={() => setIsCreateEventModalOpen(false)} />}
