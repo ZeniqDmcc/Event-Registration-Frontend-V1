@@ -1,17 +1,13 @@
-import React, { useState } from 'react';
 import "@/../../globals.css";
+import Heading from '@/components/atoms/Heading';
+import EventFormModal from '@/components/organism/Events/EventFormModal';
+import ViewEvents from '@/components/organism/Events/ViewEvents';
+import FormsFormModal from '@/components/organism/Forms/FormsFormModal';
+import ViewFormsData from '@/components/organism/Forms/ViewForms';
 import Footer from "@/components/template/Footer";
 import Header from "@/components/template/Header";
+import { useState } from 'react';
 import Auth from "../../components/auth/Auth";
-import Heading from '@/components/atoms/Heading';
-import EventHover from '@/components/organism/Events/eventHover';
-import FormHover from '@/components/organism/Forms/formHover';
-import EventFormModal from '@/components/organism/Events/EventFormModal';
-import FormsFormModal from '@/components/organism/Forms/FormsFormModal'
-import CreateEventBox from '@/components/molecules/CreateEventBox';
-import CreateFormBox from '@/components/molecules/CreateFormBox';
-import ViewEvents from '@/components/organism/Events/ViewEvents';
-import ViewFormsData from '@/components/organism/Forms/ViewForms';
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState('events');
