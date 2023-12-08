@@ -76,22 +76,22 @@ const ViewEvents = () => {
             const headers = {
                 Authorization: `Bearer ${token}`,
             };
-    
+
             // Update the visibility state based on the current state
             const newVisibilityState = !visibility;
-    
+
             // Log the constructed URL for debugging
             const url = `http://localhost:9003/admin/event/${eventId}/visibility/${newVisibilityState}`;
             console.log('Publish URL:', url);
-    
-            const response = await axios.put(url, null, { headers });
-    
+
+            const response = await axios.patch(url, null, { headers });
+
             if (response.data.status === true) {
                 console.log('Event published successfully:', response.data.data);
-    
+
                 // Update the visibility state based on the new state
                 setVisibility(newVisibilityState);
-    
+
                 fetchEvents(); // Update the event list
             } else {
                 console.error('Error publishing event:', response.data.error);
@@ -107,6 +107,8 @@ const ViewEvents = () => {
 
     let box = "w-[23%] flex p-6 justify-center h-[349px] rounded-[8px] shadow-secondary group hover:bg-gray-100 relative"
 
+    // console.log("Current status of vis:::", visibility)
+
     return (
         <div>
             <div className="flex flex-wrap gap-[32px] mt-[32px]">
@@ -118,22 +120,13 @@ const ViewEvents = () => {
                                 {event.eventId}
                             </Heading>
                         </Link>
-                        {/* <EventHover
-                            Delete={() => handleDelete(event.eventId)}
-                            ViewEvent={() => handleEventClick(event.eventId)}
-                            EditEvent={() => handleEditEvent(event.eventId)} 
-                            eventId={event.eventId}
-                            Publish={() => handlePublish(event.eventId)}
-                        /> */}
                         <EventHover
                             Delete={() => handleDelete(event.eventId)}
                             ViewEvent={() => handleEventClick(event.eventId)}
                             EditEvent={() => handleEditEvent(event.eventId)}
                             eventId={event.eventId}
                             Publish={() => handlePublish(event.eventId)}
-                            isVisible={visibility}
                         />
-
                     </div>
                 ))}
                 {isCreateEventModalOpen && <EventFormModal onClose={() => setIsCreateEventModalOpen(false)} />}

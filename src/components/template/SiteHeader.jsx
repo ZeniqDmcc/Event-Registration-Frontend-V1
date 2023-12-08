@@ -2,6 +2,7 @@ import React from 'react'
 import Container from '../atoms/Container'
 import Heading from '../atoms/Heading'
 import Link from 'next/link';
+import "@/../../globals.css"
 
 
 function SiteHeader() {
