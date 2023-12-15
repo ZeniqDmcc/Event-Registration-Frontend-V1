@@ -110,7 +110,7 @@ const ViewSigngleEventModel = ({ onClose, eventId }) => {
 
   return (
     <div className="fixed inset-0 z-10 flex items-center justify-center bg-white">
-      <div className="bg-white rounded-lg px-6 w-[80%] h-[80vh] overflow-scroll">
+      <div className="bg-white rounded-lg px-6 w-[80%] h-[80vh] overflow-y-scroll">
         {event ? (
           <div key={event.eventId}>
             <div className="flex justify-between">
@@ -146,7 +146,7 @@ ight tracking-[1px]">
                 </div>
               </div>
               {/* Form */}
-              <div className="bg-white mx-auto px-6 w-[70%]">
+              <div className="bg-white mx-auto px-6 w-[70%] overflow-y-auto">
                 {form ? (
                   <div key={form.formId}>
                     <div className="">
@@ -288,13 +288,14 @@ ight tracking-[1px]">
                   <div>Loading...</div>
                 )}
               </div>
-              <div className="absolute bottom-[55px] w-full">
+              <div className="w-full">
+                {/* Footer */}
                 <Footer />
               </div>
             </div>
 
             {/* Buttons */}
-            <div className="flex gap-4">
+            {/* <div className="flex gap-4">
               <Button variant="primary" onClick={handleEdit}>
                 Edit
               </Button>
@@ -304,7 +305,7 @@ ight tracking-[1px]">
               >
                 Delete
               </Button>
-            </div>
+            </div> */}
           </div>
         ) : (
           <div>Loading...</div>

@@ -21,9 +21,9 @@ const CreateEventFormModal = ({ onClose }) => {
                 </div>
                 {/* Modal Boxes Outer */}
                 <div className='ixb-flex-both mt-4 h-[100%]'>
-                    <div className="flex w-full mt-[-100px] gap-5 justify-center">
-                        <CreateEventBox customSytle="w-[15%]" onClick={() => setIsOpenCreateNewEvent(true)} />
-                        <CreateFormBox onClick={() => setIsOpenCreateNewForm(true)} svgColor='fill-[#1475DC]' textColor="text-[#1475DC]" customSytle="w-[15%] bg-white" />
+                    <div className="flex w-full mt-[-100px] gap-16 justify-center">
+                        <CreateEventBox className="w-[14%]" onClick={() => setIsOpenCreateNewEvent(true)} />
+                        <CreateFormBox className="w-[14%] bg-white" onClick={() => setIsOpenCreateNewForm(true)} svgColor='fill-[#1475DC]' textColor="text-[#1475DC]" customSytle="w-[15%] bg-white" />
                     </div>
                 </div>
             </div>

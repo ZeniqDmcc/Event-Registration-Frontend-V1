@@ -111,8 +111,8 @@ const ViewEvents = () => {
 
     return (
         <div>
-            <div className="flex flex-wrap gap-[32px] mt-[32px]">
-                <CreateEventBox onClick={() => setIsCreateEventModalOpen(true)} />
+            <div className="flex justify-center flex-wrap gap-[32px] mt-[32px]">
+                <CreateEventBox className="w-[23%]" onClick={() => setIsCreateEventModalOpen(true)} />
                 {data.map((event) => (
                     <div id="eventbg" className={box} key={event.eventId}>
                         <Link href={`/dashboard/events/eventdetails/${event.eventId}`}>

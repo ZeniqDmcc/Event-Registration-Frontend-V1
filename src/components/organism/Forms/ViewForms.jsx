@@ -89,7 +89,6 @@ const ViewFormsData = () => {
           }
         }
   
-        console.log("formToDuplicate 111111111111111111", formToDuplicate.formFields)
         const token = localStorage.getItem('access_token');
         const headers = {
           Authorization: `Bearer ${token}`,
@@ -124,7 +123,7 @@ const ViewFormsData = () => {
   return (
     <div>
       <div className='flex justify-center flex-wrap gap-[32px] mt-[32px]'>
-        <CreateFormBox onClick={() => setIsCreateFormModalOpen(true)} />
+        <CreateFormBox className="w-[23%] bg-bluebg text-white" onClick={() => setIsCreateFormModalOpen(true)} />
         {data.map((form) => (
           <div id="formbg" className={box} key={form.formId}>
             <FormHover

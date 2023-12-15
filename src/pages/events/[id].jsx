@@ -14,9 +14,11 @@ const EventDetailsForUser = ({ onClose }) => {
     const { id } = router.query;
     const [event, setEvent] = useState(null);
     const [formID, setFormID] = useState();
+    const [formName, setFormName] = useState()
     const [form, setForm] = useState();
     const [formValues, setFormValues] = useState({});
 
+    //Getting event
     useEffect(() => {
         if (!id) return;
         console.log(id);
@@ -34,10 +36,13 @@ const EventDetailsForUser = ({ onClose }) => {
                         headers: headers,
                     }
                 )
-                console.log("response.data.status", response.data.data)
+
+                console.log("Event Response:", response)
+
                 if (response.data.status === true) {
                     setEvent(response.data.data)
                     setFormID(response.data.data.formId)
+                    setFormName(response.data.data.eventId)
                 } else {
                     console.error("Error fetching event:", response.data.error)
                 }
@@ -52,10 +57,14 @@ const EventDetailsForUser = ({ onClose }) => {
     useEffect(() => {
         const fetchform = async () => {
             try {
-                const token = localStorage.getItem("access_token")
+                if (!formID) return;  // Add this check
+
+                const token = localStorage.getItem("access_token");
                 const headers = {
                     Authorization: `Bearer ${token}`,
                 };
+
+                console.log("Url:", `http://localhost:9003/admin/form/${formID}`)
 
                 const response = await axios.get(
                     `http://localhost:9003/admin/form/${formID}`,
@@ -63,22 +72,22 @@ const EventDetailsForUser = ({ onClose }) => {
                         headers: headers,
                     }
                 )
-                console.log(
-                    "response.data.status.forms---------------------",
-                    response.data.data.formFields
-                )
+
+                console.log("Form Response:", response.data.data.formFields)
+
                 if (response.data.status === true) {
-                    setForm(response.data.data)
+                    setForm(response.data.data);
                 } else {
-                    console.error("Error fetching event:", response.data.error);
+                    console.error("Error fetching form:", response.data.error);
                 }
             } catch (error) {
-                console.error("Error fetching event:", error)
+                console.error("Error fetching form:", error)
             }
         }
 
-        fetchform()
-    }, [formID])
+        fetchform();
+    }, [formID]);  // Add formID to the dependency array
+
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -88,9 +97,15 @@ const EventDetailsForUser = ({ onClose }) => {
                 Authorization: `Bearer ${token}`,
             };
 
-            const response = await axios.post('http://localhost:9003/admin/form/submit', formValues, {
+            console.log("Values getting for submitting information of Participant:", formValues)
+
+            const response = await axios.post(`http://localhost:9003/${formName}`, formValues, {
                 headers: headers,
             });
+
+
+            console.log("This data is submitting:", response)
+
 
             if (response.data.status === true) {
                 console.log('Form submitted successfully:', response.data.data);
@@ -179,7 +194,8 @@ const EventDetailsForUser = ({ onClose }) => {
                                                                                 type="checkbox"
                                                                                 id={field.fieldName}
                                                                                 name={field.fieldName}
-                                                                                onChange={(e) => setFormValues({ ...formValues, [field.fieldName]: e.target.value })}
+                                                                                // onChange={(e) => setFormValues({ ...formValues, [field.fieldName]: e.target.value })}
+                                                                                onChange={(e) => setFormValues({ ...formValues, [field.fieldName]: [e.target.checked.toString()] })}
                                                                             />
                                                                             <label htmlFor={field.fieldName}>
                                                                                 {field.fieldLabel}
@@ -196,7 +212,7 @@ const EventDetailsForUser = ({ onClose }) => {
                                                                                             type="radio"
                                                                                             name={field.fieldName}
                                                                                             value={option}
-                                                                                            onChange={(e) => setFormValues({ ...formValues, [field.fieldName]: e.target.value })}
+                                                                                            onChange={(e) => setFormValues({ ...formValues, [field.fieldName]: [e.target.value] })}
                                                                                         />
                                                                                         <label>{option}</label>
                                                                                     </div>
@@ -204,7 +220,6 @@ const EventDetailsForUser = ({ onClose }) => {
                                                                             </div>
                                                                         </div>
                                                                     )}
-
 
                                                                     {field.fieldType === "select" && (
                                                                         <div className="flex flex-col">
@@ -214,8 +229,9 @@ const EventDetailsForUser = ({ onClose }) => {
                                                                                 id={field.fieldName}
                                                                                 name={field.fieldName}
                                                                                 value={formValues[field.fieldName] || ''}
-                                                                                onChange={(e) => setFormValues({ ...formValues, [field.fieldName]: e.target.value })}
+                                                                                onChange={(e) => setFormValues({ ...formValues, [field.fieldName]: [e.target.value] })}
                                                                             >
+                                                                                <option disabled>Select Value</option>
                                                                                 {Array.isArray(field.options) && field.options.map((option, optionIndex) => (
                                                                                     <option key={optionIndex} value={option}>
                                                                                         {option}
@@ -239,6 +255,7 @@ const EventDetailsForUser = ({ onClose }) => {
                                                                             />
                                                                         </div>
                                                                     )}
+
                                                                     {field.fieldType === "file" && (
                                                                         <div className="flex flex-col gap-2">
                                                                             <label htmlFor={field.fieldName}>
@@ -253,13 +270,14 @@ const EventDetailsForUser = ({ onClose }) => {
                                                                             />
                                                                         </div>
                                                                     )}
+
                                                                     {field.fieldType === "tandc" && (
                                                                         <div className="flex flex-col justify-start">
                                                                             <input
                                                                                 type="checkbox"
                                                                                 id={field.fieldName}
                                                                                 name={field.fieldName}
-                                                                                onChange={(e) => setFormValues({ ...formValues, [field.fieldName]: e.target.value })}
+                                                                                onChange={(e) => setFormValues({ ...formValues, [field.fieldName]: [e.target.checked.toString()] })}
                                                                             />
                                                                             <label htmlFor={field.fieldName}>
                                                                                 {field.fieldLabel}

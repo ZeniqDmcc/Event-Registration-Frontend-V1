@@ -31,8 +31,9 @@ const EventFormModal = ({ onClose }) => {
     },
     logo: null,
     banner: null,
-    formId: "",
-  }
+    formId: 0, // Assuming you want formId to be initialized as a number
+  };
+  
 
   const handleSubmit = async (values, { setSubmitting, setErrors }) => {
     try {
@@ -55,7 +56,7 @@ const EventFormModal = ({ onClose }) => {
         formData.append("banner", values.banner);
       }
 
-      formData.append("formId", getID);
+      formData.append("formId", getID || 0);
 
       const token = localStorage.getItem("access_token");
 
@@ -109,7 +110,7 @@ const EventFormModal = ({ onClose }) => {
     }),
     logo: Yup.mixed().required("Logo is required"),
     banner: Yup.mixed().required("Banner is required"),
-    formId: Yup.string(),
+    formId: Yup.number(),
   })
 
   let inputOuter = "flex gap-1 flex-col w-[48%]";
@@ -185,11 +186,9 @@ const EventFormModal = ({ onClose }) => {
     );
   }
 
-  console.log("Get ID", getID)
-
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-white">
-      <div className="rounded-lg p-6 w-[80%] overflow-scroll h-[80vh]">
+      <div className="rounded-lg p-6 w-[80%] overflow-y-scroll h-[80vh]">
         <div className="flex justify-between">
           <Heading level="2">Create/Edit Event</Heading>
           <button
@@ -473,14 +472,14 @@ const EventFormModal = ({ onClose }) => {
                       <div className="flex justify-between">
                         <Button
                           customButtonStyle="w-[60%]"
-                          inputType="submit"
+                          type="submit"
                           variant="primary"
                         >
                           Save and create a form
                         </Button>
                         <Button
                           customButtonStyle="border w-[36%]"
-                          inputType="submit"
+                          type="submit"
                           variant="secondary"
                         >
                           Save and Exit

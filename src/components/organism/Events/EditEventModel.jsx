@@ -52,6 +52,8 @@ const EditEventModel = ({ onClose, eventId }) => {
     fetchEvent();
   }, [eventId]);
 
+  console.log("getIDgetIDgetIDgetID", eventId)
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     seteventData((preveventData) => ({
@@ -99,6 +101,7 @@ const EditEventModel = ({ onClose, eventId }) => {
 
       const response = await axios.put(
         `http://localhost:9003/admin/event/${eventId}`,
+
         eventData,
         {
           headers: headers,
@@ -161,7 +164,8 @@ const EditEventModel = ({ onClose, eventId }) => {
 
         <form onSubmit={handleEditSubmit}>
           <div className="px-10 py-20 border shadow-md">
-            <div className="w-[80%] flex flex-col gap-8 mx-auto">              <div className={fieldOuter}>
+            <div className="w-[80%] flex flex-col gap-8 mx-auto">
+              <div className={fieldOuter}>
                 <label>Select form</label>
                 <select
                   value={eventData.formId}

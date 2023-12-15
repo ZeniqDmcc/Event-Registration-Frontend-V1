@@ -12,6 +12,22 @@ const CreateNewEvent = ({ handleSubmit }) => {
 
     const [success, setSuccess] = useState('');
 
+    // Function to generate a unique numeric event ID
+    const generateUniqueEventId = () => {
+        // You can implement your own logic to generate a unique numeric ID,
+        // for example, by incrementing a counter or finding the maximum existing numeric ID.
+        // Here, I'm using a counter variable, but you may need to fetch the maximum numeric ID from the server.
+
+        // Assuming you have a counter variable stored in a state or fetched from the server
+        const counter = 1; // Replace this with your logic to get the counter
+
+        // Increment the counter for the new ID
+        const newNumericId = counter + 1;
+
+        return `${newNumericId}`;
+    };
+
+
     const initialValues = {
         eventId: '',
         eventName: '',

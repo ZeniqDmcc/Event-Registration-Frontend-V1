@@ -18,8 +18,16 @@ const Dashboard = () => {
     setActiveTab(tabName);
   };
 
+  const handleCreateEvent = () => {
+    setIsFormModalOpen(true);
+  };
+
+  const handleCreateForm = () => {
+    setIsCreateFormModalOpen(true);
+  };
+
   let box = "w-[23%] h-[349px] rounded-[8px] shadow-secondary group hover:bg-gray-100"
-  let singleBox = "w-[23%] ixb-flex-both flex-col gap-6 bg-bluebg h-[349px] rounded-[8px] shadow-secondary cursor-pointer"
+  let singleBox = "w-[23%] ixb-flex-both flex-col gap-6 bg-white h-[349px] rounded-[8px] shadow-secondary cursor-pointer"
 
   return (
     <div>

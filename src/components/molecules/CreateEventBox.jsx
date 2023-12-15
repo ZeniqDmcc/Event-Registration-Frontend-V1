@@ -1,6 +1,6 @@
-let CreateEventBox = ({ onClick, customSytle }) => {
+let CreateEventBox = ({ onClick, className }) => {
 
-    let singleBox = `w-[23%] ixb-flex-both flex-col gap-6 bg-bluebg h-[349px] rounded-[8px] shadow-secondary cursor-pointer ${customSytle}`
+    let singleBox = `ixb-flex-both flex-col gap-6 bg-bluebg h-[349px] rounded-[8px] shadow-secondary cursor-pointer ${className}`
 
     return (
         <div className={singleBox} onClick={onClick}>
