@@ -1,7 +1,6 @@
-import Button from '../../atoms/Button';
-import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { v4 as uuidv4 } from 'uuid';
+import { useEffect, useState } from 'react';
+import Button from '../../atoms/Button';
 
 function EventHover({ Delete, ViewEvent, EditEvent, eventId, onClose, Publish }) {
     const [isPublished, setIsPublished] = useState(false);
