@@ -4,9 +4,10 @@ import Button from '../../atoms/Button';
 
 function EventHover({ Delete, ViewEvent, EditEvent, eventId, onClose, Publish }) {
     const [isPublished, setIsPublished] = useState(false);
-    const [loading, setLoading] = useState(false)
+    const [loading, setLoading] = useState(false);
     const [eventIdField, setEventIdField] = useState('');
     const [showDuplicateModal, setShowDuplicateModal] = useState(false);
+    const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
 
     const handlePublishClick = () => {
         Publish(eventId);
@@ -26,13 +27,10 @@ function EventHover({ Delete, ViewEvent, EditEvent, eventId, onClose, Publish })
                 });
 
                 if (response.data.status === true) {
-                    // console.log('Check all the visibility:', response.data.data);
-
-                    // Find the event with the matching eventId
                     const event = response.data.data.find((event) => event.eventId === eventId);
 
                     if (event) {
-                        setIsPublished(event.visibile); // Assuming visibility status is stored in the "visibile" property
+                        setIsPublished(event.visibile);
                     } else {
                         console.error('Event not found:', eventId);
                     }
@@ -45,19 +43,16 @@ function EventHover({ Delete, ViewEvent, EditEvent, eventId, onClose, Publish })
         };
 
         fetchInitialVisibility();
-    }, [eventId]); // Include eventId in the dependency array to update visibility when eventId changes
+    }, [eventId]);
 
-    //Download csv
     const handleDownloadCsvClick = () => {
         window.location.href = `http://localhost:9003/admin/download/${eventId}/participants/csv`;
     };
 
-    //Duplicate event
     const handleDuplicateEventClick = async () => {
         try {
             setLoading(true);
 
-            // Fetch the event details
             const token = localStorage.getItem('access_token');
             const headers = {
                 Authorization: `Bearer ${token}`,
@@ -70,23 +65,18 @@ function EventHover({ Delete, ViewEvent, EditEvent, eventId, onClose, Publish })
             if (response.data.status === true) {
                 const eventToDuplicate = response.data.data;
 
-                // Assign the newEventId to eventToDuplicate
                 eventToDuplicate.eventId = eventIdField;
-
-                // Optionally remove or modify any other fields as needed
                 eventToDuplicate.notificationEmail = "zeniqdmcc@gmail.com";
 
-                // Post the duplicated event
                 const duplicateResponse = await axios.post('http://localhost:9003/admin/event/createEvent', eventToDuplicate, {
                     headers: headers,
                 });
 
-                if (duplicateResponse.data.status === true) {
-                    // Refresh the list of events or take any other necessary actions
-                    fetchEvents();
-                } else {
-                    console.error('Error duplicating event:', duplicateResponse.data.error);
-                }
+                // if (duplicateResponse.data.status === true) {
+                //     fetchEvents();
+                // } else {
+                //     console.error('Error duplicating event:', duplicateResponse.data.error);
+                // }
             } else {
                 console.error('Error fetching event details:', response.data.error);
             }
@@ -94,17 +84,30 @@ function EventHover({ Delete, ViewEvent, EditEvent, eventId, onClose, Publish })
             console.error('Error duplicating event:', error);
         } finally {
             setLoading(false);
-            // Close the modal after duplication
             setShowDuplicateModal(false);
         };
     };
-
 
     const handleDuplicateButtonClick = () => {
         handleDuplicateEventClick();
     };
 
-    // console.log('Event ID', eventId);
+    const handleDeleteButtonClick = () => {
+        // Show the delete confirmation popup
+        setShowDeleteConfirmation(true);
+    };
+
+    const handleDeleteConfirm = () => {
+        // Close the confirmation popup
+        setShowDeleteConfirmation(false);
+        // Call the delete function
+        Delete();
+    };
+
+    const handleDeleteCancel = () => {
+        // Close the confirmation popup
+        setShowDeleteConfirmation(false);
+    };
 
     return (
         <div className='bg-white hidden absolute top-[0px] left-0 w-[100%] event-hover max-w-[300px] h-[349px] mb-6 p-3 shadow-secondary gap-2 group-hover:flex flex-col rounded-[6px]'>
@@ -116,7 +119,7 @@ function EventHover({ Delete, ViewEvent, EditEvent, eventId, onClose, Publish })
                 <img src="/Hover/PencilSimpleLine.svg" alt="Edit" />
                 Edit
             </Button>
-            <Button variant='hoverButton' onClick={Delete}>
+            <Button variant='hoverButton' onClick={handleDeleteButtonClick}>
                 <img src="/Hover/Trash.svg" alt="Delete" />
                 Delete
             </Button>
@@ -152,6 +155,28 @@ function EventHover({ Delete, ViewEvent, EditEvent, eventId, onClose, Publish })
                 </div>
             )}
 
+            {/* Delete Confirmation Modal */}
+            {showDeleteConfirmation && (
+                <div className='fixed inset-0 z-50 overflow-auto bg-gray-700 bg-opacity-50 flex items-center justify-center'>
+                    <div className='modal mx-auto p-6 bg-white rounded-lg shadow-lg'>
+                        <h2 className='text-xl font-bold mb-4 text-center'>Are you sure want to delete event?</h2>
+                        <div className='flex justify-center'>
+                            <button
+                                className='w-24 py-2 mr-4 text-white bg-red-500 rounded hover:bg-red-600 focus:outline-none'
+                                onClick={handleDeleteConfirm}
+                            >
+                                Yes
+                            </button>
+                            <button
+                                className='w-24 py-2 text-white bg-gray-500 rounded hover:bg-gray-600 focus:outline-none'
+                                onClick={handleDeleteCancel}
+                            >
+                                No
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             <Button variant='hoverButton' onClick={handleDownloadCsvClick}>
                 <img src="/Hover/DownloadSimple.svg" alt="Download CSV" />
